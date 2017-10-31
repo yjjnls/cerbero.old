@@ -1,0 +1,44 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+import shutil
+
+from cerbero.tools.libtool import LibtoolLibrary
+
+class Recipe(recipe.Recipe):
+    name = 'taglib'
+    version = '1.11.1'
+    stype = SourceType.TARBALL
+    url = 'http://{0}.org/releases/{0}-{1}.tar.gz'.format(name, version)
+    # either LGPLv2.1 or MPLv1.1
+    licenses = [License.LGPLv2_1]
+    configure_options = '-DWITH_MP4=ON -DWITH_ASF=ON -DBUILD_SHARED_LIBS=1 -DBUILD_STATIC_LIBS=1'
+    btype = BuildType.CMAKE
+    platform_deps = {Platform.ANDROID: ['gnustl']}
+    patches = ['taglib/0001-Link-with-correct-STL-on-Android.patch',
+               'taglib/0002-Build-a-static-and-non-static-version.patch',
+              ]
+
+    files_libs = ['libtag']
+    files_devel = ['include/taglib', 'lib/pkgconfig/taglib.pc']
+
+    def prepare(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            self.configure_options += ' -DWIN32=1'
+        if self.config.target_platform == Platform.ANDROID:
+            # configure for android
+            self.configure_options += ' -DANDROID_NDK=1 '
+            self.append_env['CXXFLAGS'] = " -frtti "
+        self.configure_options += ' -DZLIB_ROOT=%s ' % self.config.prefix
+
+    def install(self):
+        super(recipe.Recipe, self).install()
+        shutil.move(
+                os.path.join(self.config.prefix, 'lib', 'libtag_static.a'),
+                os.path.join(self.config.prefix, 'lib', 'libtag.a'))
+
+    def post_install(self):
+        deps = ['z']
+        if self.config.target_platform == Platform.ANDROID:
+            deps.append('gnustl')
+        libtool_la = LibtoolLibrary('tag', 1, 7, None, self.config.libdir,
+                self.config.target_platform, deps)
+        libtool_la.save()

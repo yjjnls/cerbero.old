@@ -1,0 +1,56 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+import os
+
+PC_TMPL='''
+prefix=%(prefix)s
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/mysql
+
+Name: MySQL Connector C
+Description: MySQL Connector C lib
+Version: %(version)s
+Libs: -L${libdir} -l%(libname)s
+Cflags: -I${includedir}
+'''
+
+class Recipe(recipe.Recipe):
+    name = 'sqlite3'
+    version = '3.19.2'
+    stype = SourceType.TARBALL
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+    else:
+        btype = BuildType.AUTOTOOLS
+
+    tarball_dirname = 'sqlite-autoconf-3190200'
+    url = 'http://sqlite.org/2017/sqlite-autoconf-3190200.tar.gz'
+    licenses = [License.GPL]
+
+    files_libs = ['libsqlite3']
+    files_devel = ['include/sqlite3.h', 'lib/pkgconfig/sqlite3.pc']
+
+    patches=['sqlite3/0001-AutoCMake-adaptation.patch']
+
+        
+
+#        self.configure_options = ' -DINSTALL_INCLUDEDIR=include/mysql '
+# 
+#   def post_install(self):
+#       libname = 'msql'
+#       if self.platform == Platform.WINDOWS:
+#            libname = 'libmysql'# 
+#       path= os.path.join( self.config.prefix,'lib/pkgconfig/mysql.pc' )
+#       dirname = os.path.dirname(path)
+#       if not os.path.isdir( dirname ):
+#           os.makedirs( dirname )
+#       pc = open( path ,'w')
+#       pc.write(PC_TMPL%{
+#           'version':self.version,
+#           'prefix':self.config.prefix,
+#           'libname':libname
+#        } )
+#       pc.close()
+

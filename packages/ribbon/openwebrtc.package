@@ -1,0 +1,17 @@
+# vi:si:et:sw=4:sts=4:ts=4:syntax=python
+# -*- Mode: Python -*-
+
+
+class Package(custom.Ribbon, package.Package):
+
+    name = 'openwebrtc'
+    shortdesc = 'Open WebRTC'
+    longdesc = 'Open WebRTC componenents'
+    uuid = ''
+
+    files = ['libusrsctp:libs', 'openwebrtc-gst-plugins:libs', 'openwebrtc-lite:libs'
+            ]
+
+    platform_files = {
+            Platform.LINUX: ['pulseaudio:libs','sndfile']
+    }

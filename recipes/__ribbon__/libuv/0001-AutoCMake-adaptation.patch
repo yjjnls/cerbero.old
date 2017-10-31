@@ -1,0 +1,138 @@
+From c6df358b86f51892237c2872d6a48dabd84728fc Mon Sep 17 00:00:00 2001
+From: yjjnls <x-jj@foxmail.com>
+Date: Mon, 5 Jun 2017 16:06:31 +0800
+Subject: [PATCH] AutoCMake adaptation
+
+---
+ CMakelists.txt         | 21 +++++++++++++++
+ libuv/CMakelists.txt   | 71 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ libuv/libuv.pc.cmakein | 11 ++++++++
+ 3 files changed, 103 insertions(+)
+ create mode 100644 CMakelists.txt
+ create mode 100644 libuv/CMakelists.txt
+ create mode 100644 libuv/libuv.pc.cmakein
+
+diff --git a/CMakelists.txt b/CMakelists.txt
+new file mode 100644
+index 0000000..903c3db
+--- /dev/null
++++ b/CMakelists.txt
+@@ -0,0 +1,21 @@
++cmake_minimum_required( VERSION 3.0 )
++
++project( libuv )
++SET(PROJECT_NAME libuv )
++set(VERSION 1.12.0)
++include( AutoCMake )
++
++autocmake_pkgconfig_init()
++
++
++include_directories( ${CMAKE_SOURCE_DIR}/libuv )
++# include_directories( ${CMAKE_SOURCE_DIR}/gst )
++# include_directories( ${CMAKE_SOURCE_DIR}/local )
++# include_directories( ${CMAKE_SOURCE_DIR}/transport )
++  
++add_subdirectory( libuv  )
++# add_subdirectory( transport  )
++# add_subdirectory( gst  )
++# add_subdirectory( owr  ) 
++# add_subdirectory( tests  )
++
+diff --git a/libuv/CMakelists.txt b/libuv/CMakelists.txt
+new file mode 100644
+index 0000000..7b021bc
+--- /dev/null
++++ b/libuv/CMakelists.txt
+@@ -0,0 +1,71 @@
++cmake_minimum_required( VERSION 3.0 )
++
++project( libuv )
++set(VERSION 1.12.0)
++
++SET( UVSRCD ${CMAKE_CURRENT_LIST_DIR}/../src )
++
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/async.c          )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/core.c           )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/detect-wakeup.c  )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/dl.c             )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/error.c          )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/fs.c             )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/fs-event.c       )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/getaddrinfo.c    )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/getnameinfo.c    )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/handle.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/loop-watcher.c   )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/pipe.c           )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/poll.c           )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/process.c        )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/process-stdio.c  )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/req.c            )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/signal.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/snprintf.c       )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/stream.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/tcp.c            )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/thread.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/timer.c          )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/tty.c            )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/udp.c            )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/util.c           )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/winapi.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/win/winsock.c        )
++
++LIST( APPEND SOURCE_FILES ${UVSRCD}/fs-poll.c            )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/inet.c               )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/threadpool.c         )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/uv-common.c          )
++LIST( APPEND SOURCE_FILES ${UVSRCD}/version.c            )
++
++INCLUDE_DIRECTORIES(${UVSRCD}/../include ${UVSRCD})
++ADD_DEFINITIONS(-DBUILDING_UV_SHARED)
++
++					 
++add_library(libuv STATIC 
++                      # MODULES libuv
++					  ${SOURCE_FILES}
++                     )
++
++
++LINK_LIBRARIES(ws2_32.lib Iphlpapi.lib Psapi.lib Userenv.lib)
++
++			
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/../include/*.h )		
++INSTALL(FILES ${_HEADERS}
++        DESTINATION include/libuv )
++		
++INSTALL(FILES ${_HEADERS}
++        DESTINATION include/libuv )
++
++INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libuv.lib
++        DESTINATION lib )
++		
++set(VERSION ${PROJECT_VERSION} )
++set(prefix ${CMAKE_INSTALL_PREFIX})
++configure_file(libuv.pc.cmakein libuv.pc @ONLY)
++install( FILES libuv.pc 
++         DESTINATION lib/pkgconfig )
++
++
+diff --git a/libuv/libuv.pc.cmakein b/libuv/libuv.pc.cmakein
+new file mode 100644
+index 0000000..1a9ecdd
+--- /dev/null
++++ b/libuv/libuv.pc.cmakein
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: libuv
++Version: 1.12.0
++Description: multi-platform support library with a focus on asynchronous I/O.
++
++Libs: -L${libdir} -llibuv @LIBS@
++Cflags: -I${includedir} -I${includedir}/libuv
+-- 
+2.13.0.windows.1
+

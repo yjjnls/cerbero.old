@@ -1,0 +1,102 @@
+From 2a979da8242ef7ef16ca9636ad412c88d8288c65 Mon Sep 17 00:00:00 2001
+From: yjjnls <x-jj@foxmail.com>
+Date: Fri, 2 Jun 2017 16:11:43 +0800
+Subject: [PATCH] AutoCMake adaptation
+
+---
+ CMakeLists.txt      | 50 ++++++++++++++++++++++++++++----------------------
+ rapidjson.pc.cmakin | 11 +++++++++++
+ 2 files changed, 39 insertions(+), 22 deletions(-)
+ create mode 100644 rapidjson.pc.cmakin
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ceda71b..78d524b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -137,22 +137,22 @@ IF (UNIX OR CYGWIN)
+       COMPONENT pkgconfig)
+ ENDIF()
+ 
+-install(FILES readme.md
+-        DESTINATION "${DOC_INSTALL_DIR}"
+-        COMPONENT doc)
++# install(FILES readme.md
++        # DESTINATION "${DOC_INSTALL_DIR}"
++        # COMPONENT doc)
+ 
+ install(DIRECTORY include/rapidjson
+     DESTINATION "${INCLUDE_INSTALL_DIR}"
+     COMPONENT dev)
+ 
+-install(DIRECTORY example/
+-    DESTINATION "${DOC_INSTALL_DIR}/examples"
+-    COMPONENT examples
+-    # Following patterns are for excluding the intermediate/object files
+-    # from an install of in-source CMake build.
+-    PATTERN "CMakeFiles" EXCLUDE
+-    PATTERN "Makefile" EXCLUDE
+-    PATTERN "cmake_install.cmake" EXCLUDE)
++# install(DIRECTORY example/
++    # DESTINATION "${DOC_INSTALL_DIR}/examples"
++    # COMPONENT examples
++    # # Following patterns are for excluding the intermediate/object files
++    # # from an install of in-source CMake build.
++    # PATTERN "CMakeFiles" EXCLUDE
++    # PATTERN "Makefile" EXCLUDE
++    # PATTERN "cmake_install.cmake" EXCLUDE)
+ 
+ # Provide config and version files to be used by other applications
+ # ===============================
+@@ -160,14 +160,20 @@ install(DIRECTORY example/
+ export(PACKAGE ${PROJECT_NAME})
+ 
+ # cmake-modules
+-CONFIGURE_FILE(${PROJECT_NAME}Config.cmake.in
+-    ${PROJECT_NAME}Config.cmake
+-    @ONLY)
+-CONFIGURE_FILE(${PROJECT_NAME}ConfigVersion.cmake.in
+-    ${PROJECT_NAME}ConfigVersion.cmake
+-    @ONLY)
+-INSTALL(FILES
+-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+-    DESTINATION "${CMAKE_INSTALL_DIR}"
+-    COMPONENT dev)
++# CONFIGURE_FILE(${PROJECT_NAME}Config.cmake.in
++    # ${PROJECT_NAME}Config.cmake
++    # @ONLY)
++# CONFIGURE_FILE(${PROJECT_NAME}ConfigVersion.cmake.in
++    # ${PROJECT_NAME}ConfigVersion.cmake
++    # @ONLY)
++# INSTALL(FILES
++    # ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
++    # ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
++    # DESTINATION "${CMAKE_INSTALL_DIR}"
++    # COMPONENT dev)
++
++set(VERSION ${PROJECT_VERSION} )
++set(prefix ${CMAKE_INSTALL_PREFIX})
++configure_file(rapidjson.pc.cmakin ${CMAKE_CURRENT_BINARY_DIR}/rapidjson.pc @ONLY)
++install( FILES ${CMAKE_CURRENT_BINARY_DIR}/rapidjson.pc 
++         DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig )
+\ No newline at end of file
+diff --git a/rapidjson.pc.cmakin b/rapidjson.pc.cmakin
+new file mode 100644
+index 0000000..13ff306
+--- /dev/null
++++ b/rapidjson.pc.cmakin
+@@ -0,0 +1,11 @@
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++modules=
++
++Name: rapidjson
++Version: 1.1.0
++Description: A fast JSON parser/generator for C++ with both SAX/DOM style API
++URL: https://github.com/miloyip/rapidjson
++Cflags: -I${includedir}
+-- 
+2.13.0.windows.1
+

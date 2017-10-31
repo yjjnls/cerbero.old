@@ -1,0 +1,25 @@
+From aaeb48d2a910bdfa72166b5530d594fb4a82953c Mon Sep 17 00:00:00 2001
+From: root <root@localhost.localdomain>
+Date: Thu, 15 Jun 2017 06:23:38 -0700
+Subject: [PATCH] werror maybe-uninitialized fix
+
+---
+ usrsctplib/netinet/sctp_indata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/usrsctplib/netinet/sctp_indata.c b/usrsctplib/netinet/sctp_indata.c
+index 5b116dc..d11475a 100755
+--- a/usrsctplib/netinet/sctp_indata.c
++++ b/usrsctplib/netinet/sctp_indata.c
+@@ -1584,7 +1584,7 @@ sctp_process_a_data_chunk(struct sctp_tcb *stcb, struct sctp_association *asoc,
+ {
+ 	/* Process a data chunk */
+ 	/* struct sctp_tmit_chunk *chk; */
+-	struct sctp_tmit_chunk *chk;
++	struct sctp_tmit_chunk *chk = NULL;
+ 	uint32_t tsn, fsn, gap, mid;
+ 	struct mbuf *dmbuf;
+ 	int the_len;
+-- 
+1.8.3.1
+

@@ -1,0 +1,22 @@
+# vi:si:et:sw=4:sts=4:ts=4:syntax=python
+# -*- Mode: Python -*-
+
+
+class Package(custom.GStreamer, package.Package):
+
+    name = 'base-crypto'
+    shortdesc = 'Crypto base dependencies'
+    longdesc = 'Crypto base dependencies'
+    uuid = 'b3a6046d-5a39-4d54-93ee-3770d2f316f5'
+    deps = ['base-system-1.0']
+
+    files = ['gmp:libs', 'gnutls:libs:libs_extra:lang',
+	         'openssl:libs',
+             'libtasn1:libs', 'nettle:libs']
+
+    platform_files_devel = {
+        Platform.ANDROID: ['ca-certificates:etc'],
+        Platform.IOS: ['ca-certificates:etc'],
+        Platform.DARWIN: ['ca-certificates:etc'],
+        Platform.WINDOWS: ['ca-certificates:etc']
+    }

@@ -1,0 +1,16 @@
+# vi:si:et:sw=4:sts=4:ts=4:syntax=python
+# -*- Mode: Python -*-
+
+
+class Package(custom.Ribbon, package.Package):
+
+    name = 'communicator'
+    shortdesc = 'commuincation  componenents'
+    longdesc = 'Reactor Proactor Actor Model transport componenents'
+    uuid = ''
+
+    files = ['theron:libs', 'libuv:libs', 'libevent:libs','libwebsockets:bins:libs',
+             
+             'log4cplus:bins:libs'
+             ]
+

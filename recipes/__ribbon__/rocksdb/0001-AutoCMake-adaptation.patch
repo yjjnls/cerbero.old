@@ -1,0 +1,116 @@
+From 305ff84b50daa1b381754040e7d68d44850c515a Mon Sep 17 00:00:00 2001
+From: Mingyi <mingyi.z@outlook.com>
+Date: Fri, 9 Jun 2017 09:55:33 +0800
+Subject: [PATCH] AutoCMake adaptation
+
+remove tests for release
+---
+ CMakeLists.txt     | 39 ++++++++++++++++++++++++++++++++++++---
+ rocksdb.pc.cmakein | 12 ++++++++++++
+ 2 files changed, 48 insertions(+), 3 deletions(-)
+ create mode 100644 rocksdb.pc.cmakein
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c4e84c9..1abe410 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -41,6 +41,15 @@ endif()
+ 
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+ 
++option(WITH_TESTS "build with tests" ON)
++if( MSVC )    
++    string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Release _IS_RELEASE )
++	if( _IS_RELEASE )
++		set( WITH_TESTS OFF )
++		MESSAGE( "Tests build has been disable internal.")
++	endif()
++endif()
++
+ if(MSVC)
+   include(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty.inc)
+ else()
+@@ -554,6 +563,9 @@ else()
+   message(STATUS "JNI library is disabled")
+ endif()
+ 
++
++
++if( WITH_TESTS )
+ set(TESTS
+         cache/cache_test.cc
+         cache/lru_cache_test.cc
+@@ -681,6 +693,8 @@ if(WITH_LIBRADOS)
+   list(APPEND TESTS utilities/env_librados_test.cc)
+ endif()
+ 
++endif( WITH_TESTS )
++
+ set(BENCHMARKS
+   cache/cache_bench.cc
+   memtable/memtablerep_bench.cc
+@@ -696,6 +710,8 @@ foreach(sourcefile ${BENCHMARKS})
+   target_link_libraries(${exename}${ARTIFACT_SUFFIX} gtest ${LIBS})
+ endforeach(sourcefile ${BENCHMARKS})
+ 
++if( WITH_TESTS )
++
+ # For test util library that is build only in DEBUG mode
+ # and linked to tests. Add test only code that is not #ifdefed for Release here.
+ set(TESTUTIL_SOURCE
+@@ -755,14 +771,31 @@ foreach(sourcefile ${C_TEST_EXES})
+     add_test(NAME ${exename} COMMAND ${exename}${ARTIFACT_SUFFIX})
+     add_dependencies(check ${exename}${ARTIFACT_SUFFIX})
+ endforeach(sourcefile ${C_TEST_EXES})
++
++endif( WITH_TESTS )
++
+ add_subdirectory(tools)
+ 
++set(prefix ${CMAKE_INSTALL_PREFIX})
++configure_file("${PROJECT_SOURCE_DIR}/rocksdb.pc.cmakein"
++               "${PROJECT_SOURCE_DIR}/rocksdb.pc"
++			   @ONLY)
++
++install(FILES ${PROJECT_SOURCE_DIR}/rocksdb.pc DESTINATION lib/pkgconfig)
++			   
+ # Installation and packaging for Linux
+ if(NOT WIN32)
+-install(TARGETS ${ROCKSDB_STATIC_LIB} COMPONENT devel ARCHIVE DESTINATION lib64)
+-install(TARGETS ${ROCKSDB_SHARED_LIB} COMPONENT runtime DESTINATION lib64)
++install(TARGETS ${ROCKSDB_STATIC_LIB} COMPONENT devel ARCHIVE DESTINATION lib)
++install(TARGETS ${ROCKSDB_SHARED_LIB} COMPONENT runtime DESTINATION lib)
++install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/rocksdb/"
++        COMPONENT devel
++        DESTINATION include/rocksdb)
++else()
++
++install(TARGETS ${ROCKSDB_IMPORT_LIB} COMPONENT devel ARCHIVE DESTINATION lib)
++install(TARGETS ${ROCKSDB_IMPORT_LIB} COMPONENT runtime DESTINATION bin)
+ install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/rocksdb/"
+         COMPONENT devel
+         DESTINATION include/rocksdb)
+-set(CMAKE_INSTALL_PREFIX /usr)
+ endif()
++
+diff --git a/rocksdb.pc.cmakein b/rocksdb.pc.cmakein
+new file mode 100644
+index 0000000..a9ff918
+--- /dev/null
++++ b/rocksdb.pc.cmakein
+@@ -0,0 +1,12 @@
++# Package Information for pkg-config
++
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: rocksdb
++Description: RocksDB a key value database
++Version: 5.4.6
++Libs: -L${libdir} -lrocksdb
++Cflags: -I${includedir}
+-- 
+2.12.2.windows.1
+

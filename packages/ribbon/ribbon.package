@@ -1,0 +1,19 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class SDKPackage(custom.Ribbon, package.SDKPackage):
+
+    name = "ribbon"
+    shortdesc = "Ribbon system"
+    longdesc = "Ribbon system"
+    title = "Ribbon system"
+    sdk_version = '0.1'
+    uuid = ''
+    ignore_package_prefix = True
+    packages =[
+               # (name, required, selected)
+               ('communicator', True, True),
+			   ('openwebrtc', True, True)
+               
+              ]
+

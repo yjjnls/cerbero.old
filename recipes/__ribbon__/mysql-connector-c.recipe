@@ -1,0 +1,54 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+import os
+
+PC_TMPL='''
+prefix=%(prefix)s
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/mysql
+
+Name: MySQL Connector C
+Description: MySQL Connector C lib
+Version: %(version)s
+Libs: -L${libdir} -l%(libname)s
+Cflags: -I${includedir}
+'''
+
+class Recipe(recipe.Recipe):
+    name = 'mysql-connector-c'
+    version = '6.1.10'
+    stype = SourceType.TARBALL
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+    else:
+        btype = BuildType.CMAKE
+    tarball_dirname = 'mysql-connector-c-6.1.10-src'
+    url = 'https://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.10-src.tar.gz'
+    licenses = [License.GPL]
+
+    files_libs = ['libmysql']
+    files_devel = ['include/mysql', 'lib/pkgconfig/mysql.pc']
+
+    def prepare(self):
+        self.configure_options = ' -DINSTALL_INCLUDEDIR=include/mysql '
+
+
+    def post_install(self):
+        libname = 'msql'
+        if self.platform == Platform.WINDOWS:
+             libname = 'libmysql'
+
+        path= os.path.join( self.config.prefix,'lib/pkgconfig/mysql.pc' )
+        dirname = os.path.dirname(path)
+        if not os.path.isdir( dirname ):
+            os.makedirs( dirname )
+        pc = open( path ,'w')
+        pc.write(PC_TMPL%{
+            'version':self.version,
+            'prefix':self.config.prefix,
+            'libname':libname
+         } )
+        pc.close()
+

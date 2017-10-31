@@ -1,0 +1,73 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+from cerbero.utils import shell
+import platform
+
+class Recipe(recipe.Recipe):
+    name = 'libusrsctp'
+    version = '1.0.0'
+    remotes = {'origin': 'https://github.com/sctplab/usrsctp.git'}
+    commit = '2f6478eb8d40f1766a96b5b033ed26c0c2244589'
+
+    licenses = [License.BSD_like]
+    btype = BuildType.AUTOCMAKE
+
+    #if platform.system() == 'Windows':
+    #    btype = BuildType.AUTOCMAKE
+    #else:
+    #    autoreconf = True
+    #    configure_options = '--disable-debug --enable-static --enable-shared'
+    #if platform.system() == 'Linux':
+    #    os.environ['CFLAGS'] += ' -fPIC '
+
+
+    patches = ['usrsctp/0001-AutoCmake-adaption.patch', 
+               'usrsctp/0001-werror-maybe-uninitialized-fix.patch']
+    
+    files_libs = ['libusrsctp']
+    files_devel = ['include/usrsctp.h', 'lib/pkgconfig/libusrsctp.pc']
+
+    #def extract(self):
+    #    super(recipe.Recipe, self).extract()
+#
+    #    for f in ['NEWS', 'README', 'AUTHORS', 'ChangeLog']:
+    #        print (os.path.join(self.build_dir, f))
+    #        shell.touch(os.path.join(self.build_dir, f), True)
+    #    os.mkdir(os.path.join(self.build_dir, 'm4'))
+
+    #def configure(self):
+    #    if platform.system() == 'Windows':
+    #        pass
+    #    else:
+    #        usrsctplib_path = os.path.join(self.build_dir, 'usrsctplib')
+    #        if self.config.target_platform == Platform.ANDROID:
+    #            # ifaddrs is a GNU extension that isn't available on Android
+    #            ifaddrs_path = os.path.join(self.config.recipes_dir, self.name)
+    #            shutil.copy(os.path.join(ifaddrs_path, "ifaddrs.c"),
+    #                        usrsctplib_path)
+    #            shutil.copy(os.path.join(ifaddrs_path, "ifaddrs.h"),
+    #                        usrsctplib_path)
+    #            shell.replace(os.path.join(usrsctplib_path, 'Makefile.am'),
+    #                        {'sctp_os_userspace.h':
+    #                        'sctp_os_userspace.h ifaddrs.c ifaddrs.h'})
+    #        elif self.config.target_platform == Platform.IOS:
+    #            simulator_includes = "/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/usr/include"
+    #            shutil.copytree(os.path.join(simulator_includes, "net"),
+    #                    os.path.join(usrsctplib_path, "platform/net"))
+    #            shutil.copytree(os.path.join(simulator_includes, "netinet"),
+    #                    os.path.join(usrsctplib_path, "platform/netinet"))
+    #            self.append_env["CPPFLAGS"] = "-I %s" % os.path.join(usrsctplib_path, "platform")
+    #        # Disable compilation of examples
+    #        shell.replace(os.path.join(self.build_dir, 'Makefile.am'),
+    #                    {'SUBDIRS = usrsctplib programs':
+    #                    'SUBDIRS = usrsctplib'})
+    #        # Disable -Werror
+    #        shell.replace(os.path.join(self.build_dir, 'configure.ac'),
+    #                    {'-Werror':
+    #                    '-Wno-error'})
+    #    super(recipe.Recipe, self).configure()
+#
+    #def post_install(self):
+    #    if self.config.target_platform == Platform.LINUX:
+    #        shell.call('mv -f usrsctp.pc libusrsctp.pc', '%s/lib/pkgconfig/'%(self.config.install_dir))

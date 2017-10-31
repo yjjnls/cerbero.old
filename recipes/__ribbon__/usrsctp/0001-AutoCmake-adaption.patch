@@ -1,0 +1,59 @@
+From f427c7f820943d9979565daacf7a4c21d3de1b7a Mon Sep 17 00:00:00 2001
+From: Mingyi <mingyi.z@outlook.com>
+Date: Thu, 1 Jun 2017 17:09:09 +0800
+Subject: [PATCH] AutoCmake adaption
+
+---
+ usrsctp.pc.cmakein        | 12 ++++++++++++
+ usrsctplib/CMakeLists.txt |  9 ++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+ create mode 100644 usrsctp.pc.cmakein
+
+diff --git a/usrsctp.pc.cmakein b/usrsctp.pc.cmakein
+new file mode 100644
+index 0000000..1d2fa47
+--- /dev/null
++++ b/usrsctp.pc.cmakein
+@@ -0,0 +1,12 @@
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: usrsctp
++Description: SCTP implementation
++URL: https://github.com/sctplab/usrsctp
++Version: @VERSION@
++Requires:
++Libs: -L${libdir} -lusrsctp
++Cflags: -I${includedir}
+\ No newline at end of file
+diff --git a/usrsctplib/CMakeLists.txt b/usrsctplib/CMakeLists.txt
+index 51e3a9e..daffbaf 100644
+--- a/usrsctplib/CMakeLists.txt
++++ b/usrsctplib/CMakeLists.txt
+@@ -246,6 +246,10 @@ list(APPEND usrsctp_SOURCES
+     netinet/sctp_bsd_addr.c  netinet/sctp_indata.c        netinet/sctp_peeloff.c  netinet/sctp_timer.c         user_environment.c
+ )
+ 
++configure_file(${CMAKE_HOME_DIRECTORY}/usrsctp.pc.cmakein
++               ${PROJECT_BINARY_DIR}/libusrsctp.pc
++               @ONLY)
++
+ add_library(usrsctp SHARED ${usrsctp_SOURCES} ${usrsctp_HEADERS})
+ add_library(usrsctp-static STATIC ${usrsctp_SOURCES} ${usrsctp_HEADERS})
+ 
+@@ -295,5 +299,8 @@ endif ()
+ # INSTALL LIBRARY AND HEADER
+ #################################################
+ 
+-install(TARGETS usrsctp usrsctp-static DESTINATION ${CMAKE_INSTALL_LIBDIR})
++install(TARGETS usrsctp-static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ install(FILES usrsctp.h DESTINATION include)
++install(FILES ${PROJECT_BINARY_DIR}/libusrsctp.pc
++        DESTINATION lib/pkgconfig
++        COMPONENT dev)
+\ No newline at end of file
+-- 
+2.12.2.windows.1
+

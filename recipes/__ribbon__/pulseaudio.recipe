@@ -1,0 +1,24 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+class Recipe(recipe.Recipe):
+    name = 'pulseaudio'
+    version = '10.0'
+    stype = SourceType.TARBALL
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+    else:
+        btype = BuildType.MAKEFILE
+        config_sh = './configure --without-caps'
+        configure_tpl = "%(config-sh)s --prefix=%(prefix)s --libdir=%(libdir)s %(options)s"
+    url = 'https://freedesktop.org/software/pulseaudio/releases/pulseaudio-10.0.tar.xz'
+    licenses = [License.LGPLv2_1]
+
+    deps = ['sndfile']
+
+    def configure(self):
+        if self.config.target_platform == Platform.LINUX:
+            os.environ['CFLAGS'] += "-I%s/include"%(self.config.build_tools_prefix)
+            os.environ['CXXFLAGS'] += "-I%s/include"%(self.config.build_tools_prefix)
+            os.environ['LDFLAGS'] += "-L%s/lib"%(self.config.build_tools_prefix)
+
+        super(recipe.Recipe, self).configure()

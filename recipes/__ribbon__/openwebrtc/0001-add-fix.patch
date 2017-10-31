@@ -1,0 +1,61 @@
+From 5db0718170b2c3737db7557914f55e19602bd38f Mon Sep 17 00:00:00 2001
+From: zhangmingyi <zhangmingyi@kedacom.com>
+Date: Mon, 7 Aug 2017 17:00:47 +0800
+Subject: [PATCH] add fix
+
+---
+ owr/CMakeLists.txt | 38 +++++++++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 9 deletions(-)
+
+diff --git a/owr/CMakeLists.txt b/owr/CMakeLists.txt
+index 5b55a03..37be76a 100644
+--- a/owr/CMakeLists.txt
++++ b/owr/CMakeLists.txt
+@@ -7,15 +7,35 @@ autocmake_install_pc(NAME openwebrtc-${OWR_API_VERSION}
+                      DESCRIPTION "libopenwebrtc"
+                      REQUIRES glib-2.0 gobject-2.0 gmodule-2.0 gthread-2.0 gstreamer-1.0 nice
+ 					 LIBS openwebrtc )
+-autocmake_add_library(openwebrtc-${OWR_API_VERSION} SHARED 
+-                      MODULES gstreamer-1.0 gstreamer-base-1.0 gstreamer-gl-1.0 nice openssl
+-					               gstreamer-video-1.0 gstreamer-audio-1.0
+-								   gstreamer-rtp-1.0
+-								   gstreamer-app-1.0
+-								   gstreamer-sctp-1.0
+-					  SOURCES ${_SOURCES} ${_HEADERS} openwebrtc.def
+-                     )
+-target_link_libraries(openwebrtc-${OWR_API_VERSION} openwebrtc_transport openwebrtc_local )					 
++#autocmake_add_library(openwebrtc-${OWR_API_VERSION} SHARED 
++#                      MODULES gstreamer-1.0 gstreamer-base-1.0 gstreamer-gl-1.0 nice openssl
++#					               gstreamer-video-1.0 gstreamer-audio-1.0
++#								   gstreamer-rtp-1.0
++#								   gstreamer-app-1.0
++#								   gstreamer-sctp-1.0
++#					  SOURCES ${_SOURCES} ${_HEADERS} openwebrtc.def
++#                     )
++autocmake_check_modules(this 
++                        gstreamer-1.0 
++						gstreamer-base-1.0 
++						gstreamer-gl-1.0 
++						nice openssl
++                        gstreamer-video-1.0 
++						gstreamer-audio-1.0
++                        gstreamer-rtp-1.0
++                        gstreamer-app-1.0
++                        gstreamer-sctp-1.0 )
++
++
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++add_library (openwebrtc-${OWR_API_VERSION} SHARED ${_SOURCES} ${_HEADERS} openwebrtc.def)
++target_link_libraries(openwebrtc-${OWR_API_VERSION}  openwebrtc_transport openwebrtc_local ${this_LIBS}  )
++
++
++
++
++#target_link_libraries(openwebrtc-${OWR_API_VERSION} openwebrtc_transport openwebrtc_local )					 
+ install(TARGETS openwebrtc-${OWR_API_VERSION}
+         LIBRARY DESTINATION lib 
+         ARCHIVE DESTINATION lib
+-- 
+2.13.2.windows.1
+

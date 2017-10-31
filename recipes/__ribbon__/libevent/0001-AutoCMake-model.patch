@@ -1,0 +1,93 @@
+From 5dc19854f7ec6f2fc039a85971e098f50db34838 Mon Sep 17 00:00:00 2001
+From: Mingyi <mingyi.z@outlook.com>
+Date: Fri, 5 May 2017 10:36:56 +0800
+Subject: [PATCH] AutoCMake model
+
+---
+ CMakeLists.txt            | 15 +++++++++++++++
+ libevent_core.pc.cmakein  | 16 ++++++++++++++++
+ libevent_extra.pc.cmakein | 16 ++++++++++++++++
+ 3 files changed, 47 insertions(+)
+ create mode 100644 libevent_core.pc.cmakein
+ create mode 100644 libevent_extra.pc.cmakein
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b4a34f3..67d84b3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1390,6 +1390,14 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/LibeventConfigVersion.cmake.in
+                 ${PROJECT_BINARY_DIR}/LibeventConfigVersion.cmake
+                 @ONLY)
+ 
++configure_file(${PROJECT_SOURCE_DIR}/libevent_extra.pc.cmakein
++                ${PROJECT_BINARY_DIR}/libevent_extra.pc
++                @ONLY)
++
++configure_file(${PROJECT_SOURCE_DIR}/libevent_core.pc.cmakein
++                ${PROJECT_BINARY_DIR}/libevent_core.pc
++                @ONLY)
++				
+ # Define the public headers.
+ set_target_properties(event event_core event_extra
+     PROPERTIES PUBLIC_HEADER "${HDR_PUBLIC}")
+@@ -1418,6 +1426,13 @@ install(FILES
+             "${EVENT_INSTALL_CMAKE_DIR}"
+         COMPONENT dev)
+ 
++install(FILES
++    ${PROJECT_BINARY_DIR}/libevent_extra.pc
++	${PROJECT_BINARY_DIR}/libevent_core.pc
++    DESTINATION
++            "${EVENT_INSTALL_LIB_DIR}/pkgconfig"
++        COMPONENT dev)
++		
+ # Install exports for the install-tree.
+ install(EXPORT LibeventTargets
+         DESTINATION
+diff --git a/libevent_core.pc.cmakein b/libevent_core.pc.cmakein
+new file mode 100644
+index 0000000..a383904
+--- /dev/null
++++ b/libevent_core.pc.cmakein
+@@ -0,0 +1,16 @@
++#libevent pkg-config source file
++
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: libevent_core
++Description: libevent_core
++Version: @VERSION@
++Requires:
++Conflicts:
++Libs: -L${libdir} -levent_core
++Libs.private: @LIBS@
++Cflags: -I${includedir}
++
+diff --git a/libevent_extra.pc.cmakein b/libevent_extra.pc.cmakein
+new file mode 100644
+index 0000000..375a151
+--- /dev/null
++++ b/libevent_extra.pc.cmakein
+@@ -0,0 +1,16 @@
++#libevent pkg-config source file
++
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++
++Name: libevent_extra
++Description: libevent_extra
++Version: @VERSION@
++Requires:
++Conflicts:
++Libs: -L${libdir} -levent_extra
++Libs.private: @LIBS@
++Cflags: -I${includedir}
++
+-- 
+2.12.2.windows.1
+

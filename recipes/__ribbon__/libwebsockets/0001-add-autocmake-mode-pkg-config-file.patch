@@ -1,0 +1,35 @@
+From e1c6770d88e5dd3043d85c826dd15f20df44c664 Mon Sep 17 00:00:00 2001
+From: zhangmingyi <zhangmingyi@kedacom.com>
+Date: Thu, 3 Aug 2017 20:06:58 +0800
+Subject: [PATCH] add autocmake mode pkg-config file
+
+---
+ CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index be757da..bde3c51 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1478,15 +1478,15 @@ if (LWS_WITH_LWSWS)
+ 		)
+ endif (LWS_WITH_LWSWS)
+ 
+-if (UNIX)
++if (UNIX OR __AUTOCMAKE__ )
+ 
+ # Generate and install pkgconfig.
+ # (This is not indented, because the tabs will be part of the output)
+ file(WRITE "${PROJECT_BINARY_DIR}/libwebsockets.pc"
+-"prefix=\"${CMAKE_INSTALL_PREFIX}\"
++"prefix=${CMAKE_INSTALL_PREFIX}
+ exec_prefix=\${prefix}
+ libdir=\${exec_prefix}/lib${LIB_SUFFIX}
+-includedir=\${prefix}/include
++includedir=\${prefix}/include/libwebsockets
+ 
+ Name: libwebsockets
+ Description: Websockets server and client library
+-- 
+2.13.2.windows.1
+

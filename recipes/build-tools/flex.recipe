@@ -1,0 +1,12 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+class Recipe(recipe.Recipe):
+    name = 'flex'
+    version = '2.6.2'
+    licenses = [License.BSD_like]
+    stype = SourceType.TARBALL
+    url = 'https://github.com/westes/flex/releases/download/v{0}/flex-{0}.tar.gz'.format(version)
+    files_bins = ['flex', 'flex++', 'lex']
+    patches = ['flex/flex-prevent-to-build-doc.patch']
+    autoreconf = True
+    platform_deps = {Platform.WINDOWS: ['mingw-gettext']}

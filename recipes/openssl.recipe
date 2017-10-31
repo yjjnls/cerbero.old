@@ -1,0 +1,128 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+from cerbero.config import Architecture
+from cerbero.tools import mswin
+from cerbero.tools.pkgconfig import PkgConfigWritter
+
+
+class Recipe(recipe.Recipe):
+    name = 'openssl'
+    version = '1.1.0e'
+    stype = SourceType.TARBALL
+    btype = BuildType.MAKEFILE
+    url = 'https://www.openssl.org/source/openssl-1.1.0e.tar.gz'
+
+    config_sh = './config'
+    configure_tpl = "%(config-sh)s shared --prefix=%(prefix)s"
+    
+    
+    files_bins =['openssl']
+    files_libs = ['libssl','libcrypto']
+    files_devel = ['include/openssl', 'lib/pkgconfig/openssl.pc',
+	'lib/pkgconfig/libssl.pc','lib/pkgconfig/libcrypto.pc']
+
+    ActivePerl=None
+    VCVARS=None
+
+    def _clear_cv(self):
+        """ clear compile vars """
+        cvars=['CC','CFLAGS','LIBRARY_PATH','CXXFLAGS','CC','CXX','LD','CPP',
+        'RANLIB','AR','AS','NM','STRIP','WINDRES','RC','DLLTOOL']
+        for v in cvars:
+            os.environ[v]=''
+
+    def prepare(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            self._remove_steps ([BuildSteps.GEN_LIBFILES])
+            
+            self.VCVARS = mswin.vcvars(2015,self.config.target_arch)
+            self.ActivePerl = mswin.perl('ActivePerl')
+            return
+
+    def configure(self):
+
+        if self.config.target_platform == Platform.WINDOWS:
+            arch ={
+                Architecture.X86 : 'VC-WIN32',
+                Architecture.X86_64 : 'VC-WIN64A'
+            }[self.config.target_arch]
+
+            self._clear_cv()
+
+            shell.cmd('%(MSVS)s &&  %(ActivePerl)s Configure %(arch)s \
+            --prefix=%(prefix)s  --openssldir=%(openssldir)s'%{
+                'MSVS':self.VCVARS,
+                'ActivePerl':self.ActivePerl,
+                'prefix':self.config.prefix,
+                'openssldir':'d:/tmp/openssl.dir',
+                'arch':arch
+            },self.make_dir)
+        else:
+            super(Recipe,self).configure()
+
+
+
+
+    def compile(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            shell.cmd('%(MSVS)s && nmake.exe -f Makefile'%{
+                'MSVS':self.VCVARS,
+            },self.make_dir)
+        else:
+            super(Recipe,self).configure()
+
+    def install(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            shell.cmd('%(MSVS)s && nmake.exe -f Makefile install'%{
+                'MSVS':self.VCVARS,
+            },self.make_dir)
+            import os
+            os.rename(os.path.join(self.config.prefix,'lib/libssl.lib'),
+                        os.path.join(self.config.prefix,'lib/ssl.lib'))
+            os.rename(os.path.join(self.config.prefix,'lib/libcrypto.lib'),
+                        os.path.join(self.config.prefix,'lib/crypto.lib'))
+
+        else:
+            super(Recipe,self).configure()
+
+        self._gen_pc()
+            
+    def _gen_pc(self):
+        libprefix=''
+        if self.config.target_platform == Platform.WINDOWS:
+            libprefix='lib'
+
+        #PKG Config file
+        pkgconfigdir = os.environ['PKG_CONFIG_LIBDIR']
+        
+        PkgConfigWritter('OpenSSL-libssl',
+        desc   ='Secure Sockets Layer and cryptography libraries',
+        version= self.version,
+        req    = 'libcrypto',
+        libs   = '-lssl',
+        cflags = '-I${includedir}',
+        prefix = self.config.prefix
+        ).save('libssl', pkgconfigdir)
+
+        PkgConfigWritter('OpenSSL-libcrypto',
+        desc   ='OpenSSL cryptography library',
+        version= self.version,
+        req    = '',
+        libs   = '-lcrypto',
+        cflags = '-I${includedir}',
+        prefix = self.config.prefix
+        ).save('libcrypto', pkgconfigdir)
+
+
+        PkgConfigWritter('OpenSSL',
+        desc   ='Secure Sockets Layer and cryptography libraries and tools',
+        version= self.version,
+        req    = '',
+        libs   = '-lcrypto -lssl',
+        cflags = '-I${includedir}',
+        prefix = self.config.prefix
+        ).save('openssl', pkgconfigdir)
+
+
+
+
+

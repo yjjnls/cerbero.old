@@ -1,0 +1,64 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+import os
+
+PC_TMPL='''
+prefix=%(prefix)s
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/mysql
+
+Name: MySQL Connector C
+Description: MySQL Connector C lib
+Version: %(version)s
+Libs: -L${libdir} -l%(libname)s
+Cflags: -I${includedir}
+'''
+
+class Recipe(recipe.Recipe):
+    name = 'rocksdb'
+    version = '5.4.6'
+    stype = SourceType.TARBALL
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+        patches =['rocksdb/0001-AutoCMake-adaptation.patch']
+    else:
+        btype = BuildType.CMAKE
+        configure_tpl = '%(config-sh)s . -G\"Unix Makefiles\" '\
+                         '-DCMAKE_INSTALL_PREFIX=%(prefix)s '\
+                         '-DCMAKE_LIBRARY_OUTPUT_PATH=%(libdir)s'
+
+
+    #tarball_dirname = 'v%s'%version
+    url = 'https://github.com/facebook/rocksdb/archive/v%s.tar.gz'%version
+    licenses = [License.GPL]
+    
+
+    def prepare(self):
+        if self.config.target_platform == Platform.WINDOWS and \
+           self.config.target_arch == Architecture.X86:
+           self._remove_step(self.steps()) #do nothing
+           #not 
+#            self.make = 'msbuild.exe rocksdb.sln //p:Configuration=%s'%self.config.build_type
+
+#        
+
+        self.configure_options = ' -DFAIL_ON_WARNINGS=OFF '
+# 
+#   def post_install(self):
+#       libname = 'msql'
+#       if self.platform == Platform.WINDOWS:
+#            libname = 'libmysql'# 
+#       path= os.path.join( self.config.prefix,'lib/pkgconfig/mysql.pc' )
+#       dirname = os.path.dirname(path)
+#       if not os.path.isdir( dirname ):
+#           os.makedirs( dirname )
+#       pc = open( path ,'w')
+#       pc.write(PC_TMPL%{
+#           'version':self.version,
+#           'prefix':self.config.prefix,
+#           'libname':libname
+#        } )
+#       pc.close()
+

@@ -1,0 +1,106 @@
+# Copyright (c) 2014-2015, Centricular Ltd. All rights reserved.
+# Copyright (c) 2015, Ericsson AB. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this
+# list of conditions and the following disclaimer in the documentation and/or other
+# materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+# OF SUCH DAMAGE.
+
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+import platform
+
+class Recipe(recipe.Recipe):
+    name = 'openwebrtc-gst-plugins'
+    version = '0.3.0-1'
+    remotes = {'origin': 'https://github.com/EricssonResearch/openwebrtc-gst-plugins.git'}
+    commit = 'ba570daa9a38838ae7a80a01b24e1877f01f6169'
+    stype = SourceType.GIT
+    btype = BuildType.AUTOCMAKE
+    #if platform.system() == 'Windows':
+    #    btype = BuildType.AUTOCMAKE
+    #else:
+    #    btype = BuildType.AUTOTOOLS
+    #    autoreconf = True
+    #    autoreconf_sh = 'mkdir -p m4 && autoreconf -fiv'
+    #    configure_options = ''
+
+    deps = ['libusrsctp']
+    patches = ['openwebrtc-gst-plugins/0001-AutoCMake-adaptation.patch']
+    files_libs = ['libgstsctp-1.0']
+    files_plugins_devel = [
+        'include/gstreamer-1.0/gst/sctp',
+        'lib/pkgconfig/gstreamer-sctp-1.0.pc',
+    ]
+    files_plugins_net = [
+        'lib/gstreamer-1.0/libgstvideorepair%(mext)s',
+        'lib/gstreamer-1.0/libgstsctp%(mext)s',
+        'lib/gstreamer-1.0/libgstscream%(mext)s',
+    ]
+    #files_plugins_net_devel = [
+    #    'lib/gstreamer-1.0/libgstvideorepair.a', 'lib/gstreamer-1.0/libgstvideorepair.la',
+    #    'lib/gstreamer-1.0/libgstsctp.a', 'lib/gstreamer-1.0/libgstsctp.la',
+    #    'lib/gstreamer-1.0/libgstscream.a', 'lib/gstreamer-1.0/libgstscream.la',
+    #]
+    #platform_files_plugins_capture = {
+    #    Platform.ANDROID: ['lib/gstreamer-1.0/libgstandroidvideosrc%(mext)s'],
+    #}
+    #platform_files_plugins_capture_devel = {
+    #    Platform.ANDROID: ['lib/gstreamer-1.0/libgstandroidvideosrc.a', 'lib/gstreamer-1.0/libgstandroidvideosrc.la'],
+    #}
+    #platform_files_plugins_core = {
+    #    Platform.IOS: ['lib/gstreamer-1.0/libgstercolorspace%(mext)s'],
+    #}
+    #platform_files_plugins_core_devel = {
+    #    Platform.IOS: ['lib/gstreamer-1.0/libgstercolorspace.a', 'lib/gstreamer-1.0/libgstercolorspace.la'],
+    #}
+
+    #def prepare(self):
+    #    if self.config.target_platform == Platform.LINUX:
+    #        self.configure_options = ' -DCMAKE_C_FLAGS="$CFLAGS -fPIC "
+#
+    #    return
+    #    if self.config.target_platform == Platform.WINDOWS:
+    #        return
+    #    # Don't build ercolorspace because we use videoconvert everywhere now
+    #    self.configure_options = ' \
+    #        --enable-shared \
+    #        --enable-static \
+    #        --enable-static-plugins \
+    #        --disable-erdtls \
+    #        --disable-debug \
+    #        --disable-android-plugins \
+    #        --disable-osx-plugins \
+    #        --disable-linux-plugins'
+    #    if self.config.target_platform == Platform.IOS:
+    #        self.configure_options += ' --enable-colorspace-converter'
+    #    else:
+    #        self.configure_options += ' --disable-colorspace-converter'
+#
+    #    if self.config.target_platform == Platform.ANDROID:
+    #        android_dx_path = os.path.join(self.config.build_tools_prefix,
+    #                                       'opt', 'android-sdk', 'build-tools',
+    #                                       'android-4.4W', 'dx')
+    #        self.configure_options += ' --enable-android-plugins \
+    #            DX="{0}"'.format(android_dx_path)
+    #    elif self.config.target_platform == Platform.DARWIN:
+    #        # No-op right now
+    #        self.configure_options += ' --enable-osx-plugins'
+    #    elif self.config.target_platform == Platform.LINUX:
+    #        # No-op right now
+    #        self.configure_options += ' --enable-linux-plugins'

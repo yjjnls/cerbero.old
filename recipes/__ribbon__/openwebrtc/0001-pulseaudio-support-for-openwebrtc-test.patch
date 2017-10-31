@@ -1,0 +1,41 @@
+From eb05374ba3aa5d48446f3ff675d8a2a29ea188d6 Mon Sep 17 00:00:00 2001
+From: root <root@localhost.localdomain>
+Date: Tue, 20 Jun 2017 01:27:51 -0700
+Subject: [PATCH] pulseaudio support for openwebrtc test
+
+---
+ tests/CMakeLists.txt | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index c2d0447..7c106a0 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ PROJECT( tests )
+-
++IF (WIN32)
+ autocmake_check_modules( this gstreamer-1.0 gstreamer-base-1.0 
+ 			  gstreamer-video-1.0 gstreamer-audio-1.0
+ 			  gstreamer-rtp-1.0
+@@ -8,6 +8,17 @@ autocmake_check_modules( this gstreamer-1.0 gstreamer-base-1.0
+ 			  json-glib-1.0
+ 			  libsoup-2.4
+ 			  openssl)
++ELSEIF (UNIX)
++autocmake_check_modules( this gstreamer-1.0 gstreamer-base-1.0 
++			  gstreamer-video-1.0 gstreamer-audio-1.0
++			  gstreamer-rtp-1.0
++			  gstreamer-app-1.0
++			  gstreamer-sctp-1.0
++			  json-glib-1.0
++			  libsoup-2.4
++			  openssl libpulse-mainloop-glib libpulse)
++ELSE()
++ENDIF()
+ 
+ include_directories( ${this_INCLUDE_DIRECTORIES} )
+ link_directories( ${this_LINK_DIRECTORIES} )
+-- 
+1.8.3.1
+

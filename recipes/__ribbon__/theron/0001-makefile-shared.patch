@@ -1,0 +1,86 @@
+From 05db295d182c41b2a4763a5b6ab5d257fc23a2b9 Mon Sep 17 00:00:00 2001
+From: Cerbero Build System <cerbero@gstreamer.freedesktop.org>
+Date: Wed, 14 Jun 2017 21:19:31 -0700
+Subject: [PATCH] makefile shared
+
+---
+ Include/Theron/Detail/Mailboxes/Mailbox.h | 6 +++++-
+ Include/Theron/Framework.h                | 8 ++++++--
+ makefile                                  | 7 +++++--
+ 3 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/Include/Theron/Detail/Mailboxes/Mailbox.h b/Include/Theron/Detail/Mailboxes/Mailbox.h
+index c7c291f..1832bcd 100644
+--- a/Include/Theron/Detail/Mailboxes/Mailbox.h
++++ b/Include/Theron/Detail/Mailboxes/Mailbox.h
+@@ -234,7 +234,11 @@ THERON_FORCEINLINE void Mailbox::DeregisterActor()
+ {
+     // Can't deregister actors while the mailbox is pinned.
+     THERON_ASSERT(mPinCount == 0);
+-    THERON_ASSERT(mActor != 0);
++    //Derived actor subclass will explicitly call destructor before call "delete",
++    //to protect from situation that actor subclass data members have been deleted,
++    //while these data members are being used to process received message 
++    //in anther Theron thread
++    //THERON_ASSERT(mActor != 0);
+ 
+     mActor = 0;
+ }
+diff --git a/Include/Theron/Framework.h b/Include/Theron/Framework.h
+index 063a105..259be16 100644
+--- a/Include/Theron/Framework.h
++++ b/Include/Theron/Framework.h
+@@ -740,12 +740,16 @@ private:
+     Registers a new actor in the directory and allocates a mailbox.
+     */
+     void RegisterActor(Actor *const actor, const char *const name = 0);
+-
++protected:
++    //Derived actor subclass will explicitly call destructor before call "delete",
++    //to protect from situation that actor subclass data members have been deleted,
++    //while these data members are being used to process received message 
++    //in anther Theron thread
+     /**
+     Deregisters a previously registered actor.
+     */
+     void DeregisterActor(Actor *const actor);
+-
++private:
+     /**
+     Helper method that sends messages.
+     */
+diff --git a/makefile b/makefile
+index c10a9fc..cf2a266 100644
+--- a/makefile
++++ b/makefile
+@@ -178,7 +178,7 @@ endif
+ 
+ 
+ THERON_LIB = ${LIB}/lib${LIBNAME}.a
+-
++THERON_SO  = ${LIB}/lib${LIBNAME}.so
+ TESTS = ${BIN}/Tests
+ 
+ THREADRING = ${BIN}/ThreadRing
+@@ -203,7 +203,7 @@ SERVER = ${BIN}/Server
+ 
+ all: library tests benchmarks tutorial
+ 
+-library: summary $(THERON_LIB)
++library: summary $(THERON_LIB) $(THERON_SO)
+ 
+ summary:
+ 	@echo **** Using these settings -- see makefile for options: ****
+@@ -365,6 +365,9 @@ THERON_OBJECTS = \
+ $(THERON_LIB): $(THERON_OBJECTS)
+ 	${AR} ${ARFLAGS} ${THERON_LIB} $(THERON_OBJECTS)
+ 
++$(THERON_SO): $(THERON_OBJECTS)	
++	$(CC) -o $(THERON_SO) -shared $(THERON_OBJECTS) -ldl -lm
++
+ ${BUILD}/Actor.o: Theron/Actor.cpp ${THERON_HEADERS}
+ 	$(CC) $(CFLAGS) Theron/Actor.cpp -o ${BUILD}/Actor.o ${INCLUDE_FLAGS}
+ 
+-- 
+1.8.3.1
+

@@ -1,0 +1,161 @@
+From 4fcd0ea84a58d5003132ab6f515c8d8c6a523743 Mon Sep 17 00:00:00 2001
+From: Mingyi <mingyi.z@outlook.com>
+Date: Fri, 2 Jun 2017 13:25:47 +0800
+Subject: [PATCH] AutoCMake-adaptation
+
+---
+ CMakeLists.txt                   | 14 ++++++++++++++
+ ext/sctp/CMakeLists.txt          | 27 +++++++++++++++++++++++++++
+ gst-libs/gst/sctp/CMakeLists.txt | 21 +++++++++++++++++++++
+ gst/scream/CMakeLists.txt        | 21 +++++++++++++++++++++
+ gst/videorepair/CMakeLists.txt   | 19 +++++++++++++++++++
+ 5 files changed, 102 insertions(+)
+ create mode 100644 CMakeLists.txt
+ create mode 100644 ext/sctp/CMakeLists.txt
+ create mode 100644 gst-libs/gst/sctp/CMakeLists.txt
+ create mode 100644 gst/scream/CMakeLists.txt
+ create mode 100644 gst/videorepair/CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..eb7d83f
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,14 @@
++cmake_minimum_required( VERSION 3.0 )
++
++project( openwebrtc-gst-plugins )
++SET(VERSION 0.3.0-1)
++include( AutoCMake )
++autocmake_pkgconfig_init()
++
++add_definitions( -DPACKAGE="openwebrtc")
++add_definitions( -DPACKAGE_VERSION="${VERSION}" )
++
++add_subdirectory( gst-libs/gst/sctp  ) 
++add_subdirectory( gst/scream         )
++add_subdirectory( gst/videorepair    )  
++add_subdirectory( ext/sctp           )
+diff --git a/ext/sctp/CMakeLists.txt b/ext/sctp/CMakeLists.txt
+new file mode 100644
+index 0000000..ad6a746
+--- /dev/null
++++ b/ext/sctp/CMakeLists.txt
+@@ -0,0 +1,30 @@
++
++PROJECT( libgstsctp )
++
++
++FILE( GLOB FILE_SOURCES 
++           ${CMAKE_CURRENT_SOURCE_DIR}/*.c 
++		   ${CMAKE_CURRENT_SOURCE_DIR}/*.h 
++    )
++
++add_definitions( -DPACKAGE="sctpcidec")
++
++
++include_directories( ${CMAKE_HOME_DIRECTORY}/gst-libs )
++autocmake_check_modules(this gstreamer-1.0  glib-2.0
++                      gstreamer-base-1.0 
++					  libusrsctp)
++
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++
++
++add_library ( libgstsctp SHARED ${FILE_SOURCES} )
++set_target_properties( libgstsctp PROPERTIES PREFIX "" ) 
++target_link_libraries( libgstsctp ${this_LIBS} gstsctp-1.0 )
++if( MSVC )
++ target_link_libraries( libgstsctp ws2_32 )
++endif()
++
++install(TARGETS libgstsctp RUNTIME DESTINATION lib/gstreamer-1.0/  LIBRARY DESTINATION lib/gstreamer-1.0/ )
++add_dependencies( libgstsctp gstsctp-1.0 )
+\ No newline at end of file
+diff --git a/gst-libs/gst/sctp/CMakeLists.txt b/gst-libs/gst/sctp/CMakeLists.txt
+new file mode 100644
+index 0000000..0529729
+--- /dev/null
++++ b/gst-libs/gst/sctp/CMakeLists.txt
+@@ -0,0 +1,22 @@
++project( gstsctp-1.0 C)
++
++file( GLOB _SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c )
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
++
++autocmake_check_modules( this gstreamer-1.0 libusrsctp)
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++
++add_library ( gstsctp-1.0 STATIC ${_SOURCES} ${_HEADERS} )
++autocmake_install_pc(NAME gstreamer-sctp-1.0
++                     DESCRIPTION "GStreamer SCTP helper functions"
++                     REQUIRES gstreamer-1.0
++                     INCLUDEDIR include/gstreamer-1.0
++					  LIBS gstsctp-1.0 )
++					 
++install(TARGETS gstsctp-1.0
++        LIBRARY DESTINATION lib 
++        ARCHIVE DESTINATION lib
++		)
++		
++install(FILES ${_HEADERS} DESTINATION include/gstreamer-1.0/gst/sctp   )
+\ No newline at end of file
+diff --git a/gst/scream/CMakeLists.txt b/gst/scream/CMakeLists.txt
+new file mode 100644
+index 0000000..eb14722
+--- /dev/null
++++ b/gst/scream/CMakeLists.txt
+@@ -0,0 +1,21 @@
++project( libgstscream C )
++
++
++
++file( GLOB FILE_SOURCES 
++           ${CMAKE_CURRENT_SOURCE_DIR}/*.c 
++		   ${CMAKE_CURRENT_SOURCE_DIR}/*.h 
++    )
++
++autocmake_check_modules(this gstreamer-1.0
++                      gstreamer-base-1.0 
++					  gstreamer-rtp-1.0 
++					  gstreamer-video-1.0 )
++
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++
++add_library ( libgstscream SHARED ${FILE_SOURCES} )
++set_target_properties( libgstscream PROPERTIES PREFIX "" )
++target_link_libraries( libgstscream ${this_LIBS}  )
++install(TARGETS libgstscream RUNTIME DESTINATION lib/gstreamer-1.0 LIBRARY DESTINATION lib/gstreamer-1.0 )
+\ No newline at end of file
+diff --git a/gst/videorepair/CMakeLists.txt b/gst/videorepair/CMakeLists.txt
+new file mode 100644
+index 0000000..02da7ec
+--- /dev/null
++++ b/gst/videorepair/CMakeLists.txt
+@@ -0,0 +1,19 @@
++project( libgstvideorepair )
++
++
++file( GLOB FILE_SOURCES 
++           ${CMAKE_CURRENT_SOURCE_DIR}/*.c 
++		   ${CMAKE_CURRENT_SOURCE_DIR}/*.h 
++    )
++
++autocmake_check_modules(this  libusrsctp
++                      gstreamer-1.0 
++                      gstreamer-base-1.0 
++					  gstreamer-video-1.0)
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++
++add_library ( libgstvideorepair SHARED ${FILE_SOURCES} )
++set_target_properties( libgstvideorepair PROPERTIES PREFIX "" )
++target_link_libraries( libgstvideorepair ${this_LIBS}  )             
++install(TARGETS libgstvideorepair RUNTIME DESTINATION lib/gstreamer-1.0  LIBRARY DESTINATION lib/gstreamer-1.0 )
+\ No newline at end of file
+-- 
+2.12.2.windows.1
+

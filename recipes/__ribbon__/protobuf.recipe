@@ -1,0 +1,44 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+
+class Recipe(recipe.Recipe):
+    name = 'protobuf'
+    version = '3.3.0'
+    stype = SourceType.TARBALL
+    requires_non_src_build = False
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+
+    else:
+        btype = BuildType.MAKEFILE
+        config_sh = './configure'
+        configure_tpl = "%(config-sh)s --prefix=%(prefix)s --libdir=%(libdir)s %(options)s"
+
+    url = 'https://github.com/google/protobuf/archive/v%s.tar.gz'%version
+
+    licenses = [License.BSD_like]
+
+    patches = ['protobuf/0001-Install-pkgconfig.patch']
+
+    files_bins = ['protoc']
+    files_libs = ['libprotobuf', 'libprotobuf-lite', 'libprotoc']
+    files_devel = [
+        'include/google', 'lib/pkgconfig/protobuf.pc',
+        'lib/pkgconfig/protobuf-lite.pc'
+    ]
+
+    def prepare(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            
+            self.configure_options += ' -Dprotobuf_BUILD_TESTS=OFF '
+            self.configure_options += ' -Dprotobuf_MSVC_STATIC_RUNTIME=OFF '
+            self.configure_options += ' ./cmake '
+
+
+    def configure(self):
+        if self.config.target_platform == Platform.LINUX:
+            if not os.path.exists(self.make_dir):
+                os.makedirs(self.make_dir)
+            shell.call('./autogen.sh', self.make_dir)
+        super(recipe.Recipe, self).configure()

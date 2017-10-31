@@ -1,0 +1,18 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class SDKPackage(custom.GStreamer, package.SDKPackage):
+
+    name = "base"
+    shortdesc = "GStreamer 1.0 base system"
+    longdesc = "GStreamer 1.0 base system"
+    title = "GStreamer 1.0 base system"
+    sdk_version = '1.0'
+    uuid = ''
+    ignore_package_prefix = True
+    packages =[
+               # (name, required, selected)
+               ('base-system-1.0', True, True),
+               ('base-crypto', True, True)
+              ]
+

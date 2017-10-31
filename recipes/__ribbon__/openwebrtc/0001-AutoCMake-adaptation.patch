@@ -1,0 +1,317 @@
+From 7117c240a3226426690f99e13df5737910d87fb2 Mon Sep 17 00:00:00 2001
+From: mingyiz <mingyi.z@outlook.com>
+Date: Sat, 3 Jun 2017 18:06:55 +0800
+Subject: [PATCH] AutoCMake adaptation
+
+miss local
+
+def added
+---
+ CMakeLists.txt           |  20 +++++++++
+ gst/CMakeLists.txt       |  24 +++++++++++
+ gst/openwebrtc-gst.def   |   8 ++++
+ local/CMakeLists.txt     |   9 ++++
+ owr/CMakeLists.txt       |  25 +++++++++++
+ owr/openwebrtc.def       | 108 +++++++++++++++++++++++++++++++++++++++++++++++
+ tests/CMakeLists.txt     |  33 +++++++++++++++
+ transport/CMakeLists.txt |   9 ++++
+ 8 files changed, 236 insertions(+)
+ create mode 100644 CMakeLists.txt
+ create mode 100644 gst/CMakeLists.txt
+ create mode 100644 gst/openwebrtc-gst.def
+ create mode 100644 local/CMakeLists.txt
+ create mode 100644 owr/CMakeLists.txt
+ create mode 100644 owr/openwebrtc.def
+ create mode 100644 tests/CMakeLists.txt
+ create mode 100644 transport/CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..4c2fd04
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,20 @@
++cmake_minimum_required( VERSION 2.8 )
++
++project( openwebrtc )
++set(VERSION 0.3.0-1)
++set(OWR_API_VERSION 0.3)
++include( AutoCMake )
++
++autocmake_pkgconfig_init()
++
++include_directories( ${CMAKE_SOURCE_DIR}/owr )
++include_directories( ${CMAKE_SOURCE_DIR}/gst )
++include_directories( ${CMAKE_SOURCE_DIR}/local )
++include_directories( ${CMAKE_SOURCE_DIR}/transport )
++  
++add_subdirectory( local  )
++add_subdirectory( transport  )
++add_subdirectory( gst  )
++add_subdirectory( owr  ) 
++add_subdirectory( tests  )
++
+diff --git a/gst/CMakeLists.txt b/gst/CMakeLists.txt
+new file mode 100644
+index 0000000..ffec094
+--- /dev/null
++++ b/gst/CMakeLists.txt
+@@ -0,0 +1,24 @@
++project(openwebrtc_gst C)
++
++file( GLOB _SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c )
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
++
++autocmake_install_pc(NAME openwebrtc-gst-${OWR_API_VERSION}
++                     DESCRIPTION "libopenwebrtc-gst"
++                     REQUIRES gstreamer-1.0 openwebrtc-0.3
++					 LIBS openwebrtc_gst )
++					 
++autocmake_add_library(openwebrtc_gst SHARED 
++                      MODULES gstreamer-1.0 gstreamer-video-1.0
++					  SOURCES ${_SOURCES} ${_HEADERS} openwebrtc-gst.def )
++#openwebrtc_transport openwebrtc_local 
++target_link_libraries(openwebrtc_gst openwebrtc-${OWR_API_VERSION} )		
++install(TARGETS openwebrtc_gst
++        LIBRARY DESTINATION lib 
++        ARCHIVE DESTINATION lib
++		RUNTIME DESTINATION bin
++		)					  
++INSTALL(FILES owr_gst_audio_renderer.h owr_gst_media_source.h owr_gst_video_renderer.h
++        DESTINATION include/owr )				 
++add_dependencies(openwebrtc_gst openwebrtc-${OWR_API_VERSION} )
++    
+diff --git a/gst/openwebrtc-gst.def b/gst/openwebrtc-gst.def
+new file mode 100644
+index 0000000..ff622f6
+--- /dev/null
++++ b/gst/openwebrtc-gst.def
+@@ -0,0 +1,8 @@
++LIBRARY openwebrtc_gst.dll
++EXPORTS
++owr_gst_media_source_get_type                          @1
++owr_gst_media_source_new                               @2
++owr_gst_audio_renderer_get_type                        @3
++owr_gst_audio_renderer_new                             @4
++owr_gst_video_renderer_get_type                        @5
++owr_gst_video_renderer_new                             @6
+diff --git a/local/CMakeLists.txt b/local/CMakeLists.txt
+new file mode 100644
+index 0000000..227fbfc
+--- /dev/null
++++ b/local/CMakeLists.txt
+@@ -0,0 +1,9 @@
++project( openwebrtc_local C)
++
++file( GLOB _SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c )
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
++
++autocmake_add_library(openwebrtc_local STATIC 
++                      MODULES gstreamer-1.0 
++					  SOURCES ${_SOURCES} ${_HEADERS}
++                     )
+\ No newline at end of file
+diff --git a/owr/CMakeLists.txt b/owr/CMakeLists.txt
+new file mode 100644
+index 0000000..5b55a03
+--- /dev/null
++++ b/owr/CMakeLists.txt
+@@ -0,0 +1,25 @@
++project(openwebrtc-${OWR_API_VERSION} C)
++
++file( GLOB _SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c )
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
++
++autocmake_install_pc(NAME openwebrtc-${OWR_API_VERSION}
++                     DESCRIPTION "libopenwebrtc"
++                     REQUIRES glib-2.0 gobject-2.0 gmodule-2.0 gthread-2.0 gstreamer-1.0 nice
++					 LIBS openwebrtc )
++autocmake_add_library(openwebrtc-${OWR_API_VERSION} SHARED 
++                      MODULES gstreamer-1.0 gstreamer-base-1.0 gstreamer-gl-1.0 nice openssl
++					               gstreamer-video-1.0 gstreamer-audio-1.0
++								   gstreamer-rtp-1.0
++								   gstreamer-app-1.0
++								   gstreamer-sctp-1.0
++					  SOURCES ${_SOURCES} ${_HEADERS} openwebrtc.def
++                     )
++target_link_libraries(openwebrtc-${OWR_API_VERSION} openwebrtc_transport openwebrtc_local )					 
++install(TARGETS openwebrtc-${OWR_API_VERSION}
++        LIBRARY DESTINATION lib 
++        ARCHIVE DESTINATION lib
++		RUNTIME DESTINATION bin
++		)
++INSTALL(FILES owr.h owr_media_source.h owr_bus.h owr_message_origin.h owr_types.h
++        DESTINATION include/owr ) 
+\ No newline at end of file
+diff --git a/owr/openwebrtc.def b/owr/openwebrtc.def
+new file mode 100644
+index 0000000..cafd437
+--- /dev/null
++++ b/owr/openwebrtc.def
+@@ -0,0 +1,108 @@
++LIBRARY openwebrtc-0.3.dll
++EXPORTS
++owr_adaptation_type_get_type                             @1
++owr_audio_payload_get_type                               @2
++owr_audio_payload_new                                    @3
++owr_audio_renderer_get_type                              @4
++owr_audio_renderer_new                                   @5
++owr_bus_add_message_origin                               @6
++owr_bus_get_type                                         @7
++owr_bus_new                                              @8
++owr_bus_remove_message_origin                            @9
++owr_bus_set_message_callback                             @10
++owr_candidate_get_type                                   @11
++owr_candidate_new                                        @12
++owr_candidate_type_get_type                              @13
++owr_codec_type_get_type                                  @14
++owr_component_type_get_type                              @15
++owr_get_capture_sources                                  @16
++owr_crypto_create_crypto_data                            @17
++owr_ice_state_get_type                                   @18
++owr_image_renderer_get_type                              @19
++owr_image_renderer_new                                   @20
++owr_image_server_add_image_renderer                      @21
++owr_image_server_get_type                                @22
++owr_image_server_new                                     @23
++owr_image_server_remove_image_renderer                   @24
++owr_init                                                 @25
++owr_run                                                  @26
++owr_run_in_background                                    @27
++owr_quit                                                 @28
++owr_data_channel_close                                   @29
++owr_data_channel_get_type                                @30
++owr_data_channel_new                                     @31
++owr_data_channel_ready_state_get_type                    @32
++owr_data_channel_send                                    @33
++owr_data_channel_send_binary                             @34
++owr_data_session_add_data_channel                        @35
++owr_data_session_get_type                                @36
++owr_data_session_new                                     @37
++owr_local_media_source_get_type                          @38
++owr_media_renderer_get_dot_data                          @39
++owr_media_renderer_get_type                              @40
++owr_media_renderer_set_source                            @41
++owr_media_session_add_receive_payload                    @42
++owr_media_session_get_type                               @43
++owr_media_session_new                                    @44
++owr_media_session_set_send_payload                       @45
++owr_media_session_set_send_source                        @46
++owr_media_source_get_dot_data                            @47
++owr_media_source_get_type                                @48
++owr_media_type_get_type                                  @49
++owr_message_origin_bus_set_new                           @50
++owr_message_origin_bus_set_free                          @51
++owr_message_origin_get_bus_set                           @52
++owr_message_origin_get_type                              @53
++owr_message_origin_post_message                          @54
++owr_message_sub_type_get_type                            @55
++owr_message_type_get_type                                @56
++owr_payload_get_type                                     @57
++owr_remote_media_source_get_type                         @58
++owr_session_add_remote_candidate                         @59
++owr_session_force_candidate_pair                         @60
++owr_session_force_remote_candidate                       @61
++owr_session_get_type                                     @62
++owr_session_set_local_port                               @63
++owr_source_type_get_type                                 @64
++owr_transport_agent_add_helper_server                    @65
++owr_transport_agent_add_local_address                    @66
++owr_transport_agent_add_session                          @67
++owr_transport_agent_get_dot_data                         @68
++owr_transport_agent_get_type                             @69
++owr_transport_agent_new                                  @70
++owr_transport_agent_set_local_port_range                 @71
++owr_transport_type_get_type                              @72
++owr_uri_source_agent_get_dot_data                        @73
++owr_uri_source_agent_get_type                            @74
++owr_uri_source_agent_new                                 @75
++owr_uri_source_agent_pause                               @76
++owr_uri_source_agent_play                                @77
++owr_uri_source_get_type                                  @78
++owr_video_payload_get_type                               @79
++owr_video_payload_new                                    @80
++owr_video_renderer_get_type                              @81
++owr_video_renderer_new                                   @82
++owr_video_renderer_set_request_context_callback          @83
++owr_window_registry_get                                  @84
++owr_window_registry_get_type                             @85
++owr_window_registry_register                             @86
++owr_window_registry_unregister                           @87
++_owr_media_source_get_source_bin                         @88
++_owr_media_source_set_source_bin                         @89
++_owr_media_source_get_source_tee                         @90
++_owr_media_source_set_source_tee                         @91
++_owr_media_source_request_source                         @92
++_owr_media_source_release_source                         @93
++_owr_media_source_set_type                               @94
++_owr_media_source_set_codec                              @95
++_owr_media_source_get_codec                              @96
++_owr_is_initialized                                      @97
++_owr_get_main_context                                    @98
++_owr_get_base_time                                       @99
++_owr_schedule_with_user_data                             @100
++_owr_schedule_with_hash_table                            @102
++_owr_create_schedule_table_func                          @103
++_owr_rotation_and_mirror_to_video_flip_method            @104
++_owrmediarenderer_debug                                  @105
++_owraudiorenderer_debug                                  @106
++_owrvideorenderer_debug                                  @107
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+new file mode 100644
+index 0000000..c2d0447
+--- /dev/null
++++ b/tests/CMakeLists.txt
+@@ -0,0 +1,33 @@
++PROJECT( tests )
++
++autocmake_check_modules( this gstreamer-1.0 gstreamer-base-1.0 
++			  gstreamer-video-1.0 gstreamer-audio-1.0
++			  gstreamer-rtp-1.0
++			  gstreamer-app-1.0
++			  gstreamer-sctp-1.0
++			  json-glib-1.0
++			  libsoup-2.4
++			  openssl)
++
++include_directories( ${this_INCLUDE_DIRECTORIES} )
++link_directories( ${this_LINK_DIRECTORIES} )
++
++macro( _add_test _name )
++   MESSAGE("-----\t${_name}\t------\n${this_LIBS}--------\n")
++	add_executable (${_name} ${ARGN})
++	target_link_libraries(${_name}  openwebrtc-${OWR_API_VERSION} openwebrtc_gst ${this_LIBS}  )
++	install(TARGETS ${_name}
++			RUNTIME DESTINATION test/openwebrtc	)
++	add_dependencies(${_name} openwebrtc-${OWR_API_VERSION} openwebrtc_gst )
++
++endmacro()
++
++_add_test( test-init test_init.c )
++_add_test( test-bus test_bus.c )
++_add_test( test-uri test_uri.c test_utils.c )
++_add_test( test-gst-io test_gst_io.c )
++#_add_test( test-list-devices list_devices.c )
++_add_test( test-self-view test_self_view.c test_utils.c )
++_add_test( test-send-receive test_send_receive.c test_utils.c )
++_add_test( test-client test_client.c )
++
+diff --git a/transport/CMakeLists.txt b/transport/CMakeLists.txt
+new file mode 100644
+index 0000000..92e54a8
+--- /dev/null
++++ b/transport/CMakeLists.txt
+@@ -0,0 +1,9 @@
++project( openwebrtc_transport C)
++
++file( GLOB _SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.c )
++file( GLOB _HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h )
++
++autocmake_add_library(openwebrtc_transport STATIC 
++                      MODULES gstreamer-1.0 nice openssl gstreamer-sctp-1.0
++					  SOURCES ${_SOURCES} ${_HEADERS}
++                     )
+\ No newline at end of file
+-- 
+2.12.0.windows.1
+

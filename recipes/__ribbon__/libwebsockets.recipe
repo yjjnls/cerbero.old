@@ -1,0 +1,90 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+
+
+class Recipe(recipe.Recipe):
+    name = 'libwebsockets'
+    version = '2.2.1'
+    stype = SourceType.TARBALL
+    #if os.getenv('MSYSTEM'):
+    #    btype = BuildType.AUTOCMAKE
+    #else:
+    #    btype = BuildType.CMAKE
+    btype = BuildType.AUTOCMAKE
+
+    #tarball_dirname = 'v%s'%version
+    url = 'https://github.com/warmcat/libwebsockets/archive/v%s.tar.gz' % version
+    licenses = [License.BSD_like]
+    requires_non_src_build = False
+
+    #add_host_build_target = False
+    #can_use_configure_cache = False
+    #configure_tpl = "./configure --prefix %(prefix)s "\
+    #                "--libdir %(libdir)s %(options)s"
+    #if os.getenv('MSYSTEM'):
+    #    patches = ['libwebsockets/0001-AutoCMake-adaptation.patch']
+    patches = ['libwebsockets/0001-add-autocmake-mode-pkg-config-file.patch']
+    deps = ['libuv','zlib']
+    #
+   # if os.getenv('MSYSTEM'):
+    #    files_libs = ['websockets_static', 'zlib_internal']
+    #else:
+    files_libs = ['libwebsockets']
+    files_devel = ['include/libwebsockets', 'lib/pkgconfig/libwebsockets.pc']
+    files_bins  = ['libwebsockets-test-client',
+                    'libwebsockets-test-echo',
+                    'libwebsockets-test-fraggle',
+                    'libwebsockets-test-ping',
+                    'libwebsockets-test-server-extpoll',
+                    'libwebsockets-test-server']
+    def prepare(self):
+        self.configure_options += " -DLWS_WITH_SSL=ON "\
+                                  " -DLWS_WITH_LIBUV=ON "\
+                                  " -DLWS_WITH_SHARED=ON"\
+                                  " -DLWS_LINK_TESTAPPS_DYNAMIC=ON"\
+                                  " -DLWS_USE_BUNDLED_ZLIB=OFF"
+        if self.platform == Platform.WINDOWS:
+            libuv='%s/lib/libuv.lib'%self.config.prefix
+            libssl='\"{0}/lib/crypto.lib;{0}/lib/ssl.lib\"'.format(self.config.prefix)
+        else:
+            libuv='%s/lib/libuv.so'%self.config.prefix
+            libssl='\"{0}/lib/libssl.so;{0}/lib/libcrypto.so\"'.format(self.config.prefix)
+
+        self.configure_options += " -DLWS_INSTALL_LIB_DIR=%(prefix)s/lib "\
+                                  " -DLWS_INSTALL_BIN_DIR=%(prefix)s/bin "\
+                                  " -DLWS_INSTALL_INCLUDE_DIR=%(prefix)s/include/libwebsockets "\
+                                  " -DLWS_INSTALL_EXAMPLES_DIR=%(prefix)s/bin "\
+                                  " -DLWS_LIBUV_LIBRARIES=%(libuv)s "\
+                                  " -DLWS_LIBUV_INCLUDE_DIRS=%(prefix)s/include/libuv "\
+                                  " -DLWS_OPENSSL_LIBRARIES=%(libssl)s"\
+                                  " -DLWS_OPENSSL_INCLUDE_DIRS=%(prefix)s/include"\
+                                  %{'prefix':self.config.prefix,'libuv':libuv,'libssl':libssl}
+
+
+
+
+
+
+
+#        if os.getenv('MSYSTEM'):
+#            pass #self.configure_options += " -DLWS_OPENSSL_LIBRARIES={0}/lib/ssl.lib;{0}/lib/crypto.lib ".format( self.config.prefix)
+#        else:
+#            #self.configure_options += " -DLWS_OPENSSL_LIBRARIES={0}/lib/libssl.so;{0}/lib/libcrypto.so ".format( self.config.prefix)
+#            #self.configure_options += " -DLWS_OPENSSL_INCLUDE_DIRS=%s/include" % self.config.prefix
+#
+#            self.configure_options += " -DLWS_WITH_LIBUV=ON "
+#            self.configure_options += " -DLIBUV_INCLUDE_DIRS=%s/include/libuv " % self.config.prefix
+#        if os.getenv('MSYSTEM'):
+#            self.configure_options += " -DLIBUV_LIBRARIES=%s/lib/libuv.lib " % self.config.prefix
+#        else:
+#            self.configure_options += " -DLIBUV_LIBRARIES=%s/lib/libuv.a " % self.config.prefix
+#
+#        self.configure_options += " -DLWS_WITH_SHARED=OFF "
+        # self.configure_options += " -DLWS_WITHOUT_TESTAPPS=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_SERVER=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_SERVER_EXTPOLL=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_PING=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_ECHO=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_CLIENT=ON "
+        # self.configure_options += " -DLWS_WITHOUT_TEST_FRAGGLE=ON "
+

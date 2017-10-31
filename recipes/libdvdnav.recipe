@@ -1,0 +1,18 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'libdvdnav'
+    version = '5.0.1'
+    stype = SourceType.TARBALL
+    url = 'http://www.videolan.org/pub/videolan/libdvdnav/5.0.1/libdvdnav-5.0.1.tar.bz2'
+    licenses = [License.GPLv2Plus]
+    autoreconf = True
+    deps = ['libdvdread']
+    patches = ['libdvdnav/0001-Fix-linking-in-windows-compilation.patch',
+               'libdvdnav/0002-Build-DLLs-on-Windows.patch',
+              ]
+
+    files_libs = ['libdvdnav']
+    files_devel = ['include/dvdnav', 'lib/pkgconfig/dvdnav.pc']
+

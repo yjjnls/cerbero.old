@@ -1,0 +1,75 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+from cerbero.utils import shell
+import platform
+
+PC_TMPL="""
+prefix=%(prefix)s
+exec_prefix=${prefix}/bin
+libdir=${prefix}/lib
+sharedlibdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: theron
+Description: a lightweight C++ concurrency library based on the Actor Model
+Version: %(version)s
+Requires: 
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -ltheron 
+Cflags: -I${includedir} 
+"""
+class Recipe(recipe.Recipe):
+    name = 'pjsip'
+    version = '2.6'
+    stype = SourceType.TARBALL
+    tarball_dirname = 'pjproject-2.6'
+    if platform.system() == 'Windows':
+        btype = BuildType.AUTOCMAKE
+        requires_non_src_build = False
+        
+    else:
+        btype = BuildType.AUTOTOOLS
+        autoreconf = True
+
+        make = 'make dep && make clean && make'
+
+    url = 'http://www.pjsip.org/release/2.6/pjproject-2.6.tar.bz2'
+    
+    def prepare(self):
+        if self.config.target_platform == Platform.WINDOWS:
+            #shell.call('pwd ')
+            #shell.call('touch pjlib/include/pj/config_site.h')
+            
+            self.config_sh = ''
+            self.configure_tpl='touch pjlib/include/pj/config_site.h'
+
+            options=' //p:Configuration=%(config)s //p:Platform=%(platform)s'%{
+                'config': self.config.build_type,
+                'platform':{
+                    Architecture.X86:'Win32',
+                    Architecture.X86_64:'x64'
+                }[self.config.target_arch]
+            }
+            self.make = 'msbuild.exe pjlib/build/pjlib.vcxproj %s '%options 
+            self.make +=' && msbuild.exe pjlib-util/build/pjlib_util.vcxproj %s '%options
+            self.make +=' && msbuild.exe pjsip/build/pjsip_core.vcxproj %s '%options
+            self.make +=' && msbuild.exe pjsip/build/pjsip_ua.vcxproj %s '%options
+            self.make +=' && msbuild.exe pjsip/build/pjsua_lib.vcxproj %s '%options
+            self.make +=' && msbuild.exe pjsip/build/pjsua2_lib.vcxproj %s '%options
+            self.make +=' && msbuild.exe pjnath/build/pjnath.vcxproj %s '%options
+            
+            self.make_install = 'echo make install'
+            self.make_check = None
+            self.make_clean = 'echo make clean'
+
+            #win32 pjnath-i386-Win32-vc14-Release.lib
+            #Win64 pjnath-x86_64-x64-vc14-Debug.lib
+            #./pjlib/lib/pjlib-x86_64-x64-vc14-Debug.lib
+            #./pjlib-util/lib/pjlib-util-x86_64-x64-vc14-Debug.lib
+            #./pjnath/lib/pjnath-x86_64-x64-vc14-Debug.lib
+            #./pjsip/lib/pjsip-core-x86_64-x64-vc14-Debug.lib
+            #./pjsip/lib/pjsip-ua-x86_64-x64-vc14-Debug.lib
+            #./pjsip/lib/pjsua-lib-x86_64-x64-vc14-Debug.lib
+            #./pjsip/lib/pjsua2-lib-x86_64-x64-vc14-Debug.lib
+ 

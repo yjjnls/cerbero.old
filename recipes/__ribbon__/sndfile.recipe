@@ -1,0 +1,15 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+class Recipe(recipe.Recipe):
+    name = 'sndfile'
+    version = '1.0.28'
+    stype = SourceType.TARBALL
+    if os.getenv('MSYSTEM'):
+        btype = BuildType.AUTOCMAKE
+    else:
+        btype = BuildType.MAKEFILE
+        config_sh = './configure'
+        configure_tpl = "%(config-sh)s --prefix=%(prefix)s --libdir=%(libdir)s %(options)s"
+    tarball_dirname = 'libsndfile-1.0.28'
+    url = 'http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz'
+    licenses = [License.LGPLv3]

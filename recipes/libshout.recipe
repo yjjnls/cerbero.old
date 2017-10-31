@@ -1,0 +1,13 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+
+
+class Recipe(recipe.Recipe):
+    name = 'libshout'
+    version = '2.4.1'
+    stype = SourceType.TARBALL
+    url = 'http://downloads.xiph.org/releases/libshout/libshout-2.4.1.tar.gz'
+    licenses = [License.LGPLv2Plus]
+    deps = ['libtheora', 'libogg', 'libvorbis', 'speex']
+
+    files_libs = ['libshout']
+    files_devel = ['include/shout', 'lib/pkgconfig/shout.pc']

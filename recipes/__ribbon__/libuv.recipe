@@ -1,0 +1,129 @@
+# -*- Mode: Python -*- vi:si:et:sw=4:sts=4:ts=4:syntax=python
+#from cerbero.tools.libtool import LibtoolLibrary
+from cerbero.utils import shell
+
+PC_TMPL='''
+prefix=%(prefix)s
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include/libuv
+
+Name: libuv
+Version: %(version)s
+Description: multi-platform support library with a focus on asynchronous I/O.
+
+Libs: -L${libdir} -llibuv
+Cflags: -I${includedir}
+
+'''
+class Recipe(recipe.Recipe):
+    name = 'libuv'
+    version = '1.12.0'
+    stype = SourceType.TARBALL
+    btype = BuildType.MAKEFILE
+    import platform
+    if platform.system() == 'Windows':
+        btype = BuildType.AUTOCMAKE
+    patches = ['libuv/0001-msvs-2015-build.patch']
+    config_sh = './configure'
+    configure_tpl = "%(config-sh)s --prefix=%(prefix)s --libdir=%(libdir)s %(options)s"
+        
+    tarball_dirname = 'libuv-1.12.0'
+    url = 'https://github.com/libuv/libuv/archive/v1.12.0.tar.gz'
+    licenses = [License.BSD_like]
+    requires_non_src_build = False
+
+    
+    #
+    files_libs = ['libuv']
+    files_devel = ['include/libuv', 'lib/pkgconfig/libuv.pc']
+
+    def prepare(self):
+        
+        if self.config.target_platform == Platform.WINDOWS:
+            arch = {Architecture.X86_64:'x64',Architecture.X86:'x86'}[self.config.target_arch]
+            build = self.config.build_type.lower()
+
+
+            self.make_install='echo '
+            self.config_sh = 'msvs-build.bat shared nobuild %s %s '%(build,arch)
+            self.configure_tpl = "%(config-sh)s"
+            self.make = 'msvs-build.bat shared noprojgen %s %s '%(build,arch)
+
+
+    def configure(self):
+        if self.config.target_platform == Platform.LINUX:
+            if not os.path.exists(self.make_dir):
+                os.makedirs(self.make_dir)
+            shell.call('bash autogen.sh', self.make_dir)
+            self.configure_options += ' --includedir=%s/include/libuv '%self.config.prefix
+            
+        if self.config.target_platform == Platform.WINDOWS:
+            pass
+
+
+        super(recipe.Recipe, self).configure()
+
+
+    #def compile(self):
+    #    super(recipe.Recipe, self).compile()
+    #    if self.config.target_platform == Platform.WINDOWS:
+    #        arch = {Architecture.X86_64:'x64',Architecture.X86:'x86'}[self.config.target_arch]
+    #        build = self.config.build_type.lower()
+    #        _CWD= os.getcwd()
+    #        #print self.make_dir
+    #        
+    #        os.chdir(self.make_dir)
+    #        os.system('vcbuild.bat shared %s %s '%(build,arch))
+    #        os.chdir(_CWD)
+
+    def post_install(self):
+        import shutil
+        if self.config.target_platform == Platform.WINDOWS:
+            src = os.path.join(self.make_dir,'include')
+            dst = os.path.join(self.config.prefix,'include/libuv')
+            if not os.path.exists(dst ):
+                os.makedirs( dst )
+            
+            shell.copy_dir( src,dst )
+
+            src = os.path.join(self.make_dir,self.config.build_type,'libuv.lib')
+            d = os.path.join(self.config.prefix,'lib')
+            if not os.path.exists(d ):
+                os.makedirs( d )
+            dst = os.path.join(d,'libuv.lib')
+            shutil.copy(src,dst)
+
+            src = os.path.join(self.make_dir,self.config.build_type,'libuv.dll')
+            d = os.path.join(self.config.prefix,'bin')
+            if not os.path.exists(d ):
+                os.makedirs( d )
+            dst = os.path.join(d,'libuv.dll')
+            shutil.copy(src,dst)
+        
+            d = os.path.join(self.config.prefix,'testkits')
+            if not os.path.exists(d ):
+                os.makedirs( d )
+            for p in [ 'run-benchmarks', 'run-tests']:
+                src = os.path.join(self.make_dir, self.config.build_type, p+'.exe')
+                dst = os.path.join(d, p+'.exe')
+                shutil.copy(src,dst)
+
+            d = os.path.join(self.config.prefix,'lib/pkgconfig')
+            if not os.path.exists(d ):
+                os.makedirs( d )
+
+            filename = os.path.join(d,'libuv.pc')
+            f = open(filename,'w')
+            f.write(PC_TMPL%{
+                'prefix':self.config.prefix,
+                'version':self.version
+            })
+            f.close()
+
+
+            
+        
+
+
+

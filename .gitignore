@@ -1,0 +1,17 @@
+*pyc
+_trial_temp
+/build
+*.swp
+cerbero.egg-info
+/dist
+MANIFEST.in
+*.pkg
+*.dmg
+.DS_Store
+*.msm
+*.msi
+*.zip
+*.rpm
+*~
+*.wsx
+*.wixobj

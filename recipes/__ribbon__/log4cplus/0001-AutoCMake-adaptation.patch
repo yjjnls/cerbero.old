@@ -1,0 +1,110 @@
+From 2e177bdc5f8182868de9ab9a51d24d4f33e6ac33 Mon Sep 17 00:00:00 2001
+From: Mingyi <mingyi.z@outlook.com>
+Date: Fri, 5 May 2017 12:00:37 +0800
+Subject: [PATCH] AutoCMake adaptation
+
+remove win32 postfix
+---
+ CMakeLists.txt       |  9 +++++++--
+ log4cplus.pc.cmakein | 13 +++++++++++++
+ src/CMakeLists.txt   | 22 +++++++++++-----------
+ 3 files changed, 31 insertions(+), 13 deletions(-)
+ create mode 100644 log4cplus.pc.cmakein
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e4709ab..145e4d9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,7 +40,7 @@ endif(LOG4CPLUS_SINGLE_THREADED AND LOG4CPLUS_BUILD_LOGGINGSERVER)
+ set(BUILD_SHARED_LIBS TRUE CACHE BOOL "If TRUE, log4cplus is built as a shared library, otherwise as a static library")
+ 
+ if (WIN32)
+-  set (UNICODE_DEFAULT ON)
++  set (UNICODE_DEFAULT OFF)
+ else (WIN32)
+   set (UNICODE_DEFAULT OFF)
+ endif (WIN32)
+@@ -86,7 +86,6 @@ if (LOG4CPLUS_ENABLE_DECORATED_LIBRARY_NAME)
+ endif (LOG4CPLUS_ENABLE_DECORATED_LIBRARY_NAME)
+ 
+ set (log4cplus "log4cplus${log4cplus_postfix}")
+-
+ if (WITH_ICONV)
+   set(LOG4CPLUS_WITH_ICONV 1)
+ endif ()
+@@ -115,6 +114,12 @@ file(WRITE ${DEFINES_HXX_CMAKE} ${FILE_BUFFER})
+ 
+ configure_file(${DEFINES_HXX_CMAKE} ${DEFINES_HXX} @ONLY)
+ 
++set(VERSION ${PROJECT_VERSION} )
++set(prefix ${CMAKE_INSTALL_PREFIX})
++configure_file(log4cplus.pc.cmakein ${log4cplus_BINARY_DIR}/log4cplus.pc @ONLY)
++install( FILES ${log4cplus_BINARY_DIR}/log4cplus.pc 
++         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig )
++
+ include_directories (${log4cplus_SOURCE_DIR}/include
+                      ${log4cplus_BINARY_DIR}/include
+                     )
+diff --git a/log4cplus.pc.cmakein b/log4cplus.pc.cmakein
+new file mode 100644
+index 0000000..9c0b965
+--- /dev/null
++++ b/log4cplus.pc.cmakein
+@@ -0,0 +1,13 @@
++prefix=@prefix@
++exec_prefix=${prefix}/bin
++libdir=${prefix}/lib
++includedir=${prefix}/include
++modules=
++
++Name: log4cplus
++Version: @VERSION@
++Description: Simple to use, thread-safe C++ logging API
++Requires:
++Libs: -L${libdir} -llog4cplus
++Libs.private: @LIBS@
++Cflags: -I${includedir}
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 82e5295..03dd33f 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -117,8 +117,8 @@ else ()
+ endif ()
+ 
+ if (WIN32)
+-  set_target_properties (${log4cplus} PROPERTIES
+-    DEBUG_POSTFIX "D")
++#  set_target_properties (${log4cplus} PROPERTIES
++#    DEBUG_POSTFIX "D")
+   target_link_libraries (${log4cplus} ws2_32 advapi32)
+ endif ()
+ 
+@@ -146,16 +146,16 @@ write_basic_package_version_file(
+ # Note: variable 'targets_export_name' used
+ configure_file("cmake/Config.cmake.in" "${project_config}" @ONLY)
+ 
+-install(
+-    FILES "${project_config}" "${version_config}"
+-    DESTINATION "${config_install_dir}"
+-)
++# install(
++    # FILES "${project_config}" "${version_config}"
++    # DESTINATION "${config_install_dir}"
++# )
+ 
+-install(
+-    EXPORT "${targets_export_name}"
+-    NAMESPACE "${namespace}"
+-    DESTINATION "${config_install_dir}"
+-)
++# install(
++    # EXPORT "${targets_export_name}"
++    # NAMESPACE "${namespace}"
++    # DESTINATION "${config_install_dir}"
++# )
+ 
+ install(TARGETS ${log4cplus} EXPORT "${targets_export_name}"
+                           INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+-- 
+2.13.0.windows.1
+
