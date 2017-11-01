@@ -70,6 +70,12 @@ class Installer(Command):
             repo = args.repo
             #for filename in args.elements:
             #    filter[filename] ={}
+        elif args.type == 'build-tools':
+            from cerbero.cpm.setup import Component
+            installer = Component( config.build_tools_prefix)
+            repo = args.repo
+            for filename in args.elements:
+                filter[filename] ={}        
         else:
             assert None,"Unkown command %s"%args.type
 

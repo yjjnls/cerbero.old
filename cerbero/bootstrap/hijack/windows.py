@@ -37,7 +37,7 @@ MINGWGET_DEPS = ['msys-wget', 'msys-flex', 'msys-bison', 'msys-perl']
 GNOME_FTP = 'http://ftp.gnome.org/pub/gnome/binaries/win32/'
 WINDOWS_BIN_DEPS = ['intltool/0.40/intltool_0.40.4-1_win32.zip']
 
-PYTHON_SDK_PACKAGE='https://github.com/taoarch/cerbero/releases/download/tools-0.1/python27-windows.tar.bz2'
+PYTHON_SDK_PACKAGE='http://cerbero.repo/v0.1/python27-windows.tar.bz2'
 
 class WindowsBootstrapper(BootstrapperBase):
     '''

@@ -3,7 +3,7 @@ from cerbero.tools.libtool import LibtoolLibrary
 from cerbero.tools.pkgconfig import PkgConfigWritter
 
 class Recipe(recipe.Recipe):
-    name = '--zlib'
+    name = 'zlib'
     version = '1.2.11'
     stype = SourceType.TARBALL
     btype = BuildType.MAKEFILE

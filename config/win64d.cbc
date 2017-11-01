@@ -1,0 +1,7 @@
+rootd=os.path.abspath( os.path.dirname(__file__)+'/..')
+prefix=os.path.join(rootd,'x86_64d')
+from cerbero.config import Architecture
+arch = Architecture.X86_64
+target_arch = Architecture.X86_64
+build_type='debug'
+print prefix,'<---'

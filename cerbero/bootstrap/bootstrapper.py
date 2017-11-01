@@ -34,17 +34,15 @@ def register_bootstrapper(distro, klass, distro_version=None):
 
 
 class Bootstrapper (object):
-    def __new__(klass, config, build_tools_only,instal_build_tools):
+    def __new__(klass, config, build_tools_only,build_tools_disable):
         bs = []
 
         bs.append(BuildTools(config))
         if build_tools_only:
             return bs
         
-        if instal_build_tools:
+        if build_tools_disable:
             bs =[]
-            from cerbero.tools import cpm
-            cpm.Install(config.build_tools_prefix, instal_build_tools)
 
 
         target_distro = config.target_distro

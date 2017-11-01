@@ -481,6 +481,13 @@ def _noop(pkg,arcname,buf):
     return None,arcname
 
 def Install(prefix, filename):
+    url = filename
+    if not os.path.exists(filename):
+        if filename.startswith('https://') or filename.startswith('https://'):
+            filename = os.path.abspath( os.path.basename(url) )
+            shell.download(url,filename)
+        else:
+            raise "%s not exists."%filename
 
 
     pkg = PkgFile(prefix)

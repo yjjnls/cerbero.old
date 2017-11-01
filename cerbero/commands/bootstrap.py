@@ -28,15 +28,15 @@ class Bootstrap(Command):
 
     def __init__(self):
         args = [
-            ArgparseArgument('--install-build-tools', type=str,
-                default='', help=_('Install build tools from package')),
+            ArgparseArgument('--build-tools-disable', action='store_true',
+                default=False, help=_('Disable build tools(since it installed)')),
 
             ArgparseArgument('--build-tools-only', action='store_true',
                 default=False, help=_('only bootstrap the build tools'))]
         Command.__init__(self, args)
 
     def run(self, config, args):
-        bootstrappers = Bootstrapper(config, args.build_tools_only,args.install_build_tools)
+        bootstrappers = Bootstrapper(config, args.build_tools_only,args.build_tools_disable)
         for bootstrapper in bootstrappers:
             bootstrapper.start()
 
