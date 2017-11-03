@@ -72,7 +72,7 @@ class Installer(Command):
             #    filter[filename] ={}
         elif args.type == 'build-tools':
             from cerbero.cpm.setup import Component
-            installer = Component( config.build_tools_prefix)
+            installer = Component( config.build_tools_prefix,build_tools=True)
             repo = args.repo
             for filename in args.elements:
                 filter[filename] ={}        

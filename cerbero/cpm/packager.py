@@ -130,7 +130,6 @@ class PkgFile(object):
                 fobj.close()
                 
                 content  = hook.process( arcname, content)
-
                 if content:
                     self.addfile(content,arcname)
                 break
@@ -191,7 +190,6 @@ class PkgFile(object):
                     #aname = '%s/%s/%s'%(arcname,middle,filename)
                     fpath = os.path.join(root,filename)
                     aname = relpath(fpath,self._root)
-
                     if not self._add_hook_handler(aname):                
                         self._tar.add(fpath, aname)
 
@@ -288,7 +286,7 @@ class Component(object):
         self._mkdevel(prefix,output_dir)
 
 
-def Pack(prefix,output_dir, desc, items=['']):
+def Pack(prefix,output_dir, desc, items=[''],build_tools=False):
 
     path = os.path.join(output_dir,desc.filename())
 
@@ -298,6 +296,26 @@ def Pack(prefix,output_dir, desc, items=['']):
 
     pkg.addhook( r'.*\.pc$',pc.Normalizer( prefix ))
     pkg.addhook( r'.*\.la$',la.Normalizer( prefix ))
+    if build_tools:
+        from cerbero.cpm.autotools import aclocal,autoconf,autoreconf,autoheader,autom4te,automake,autoscan,autoupdate
+        from cerbero.cpm.autotools import ifnames,autom4te_cfg,Automake_Config_pm,prefix_replace,libtoolize
+        
+        pkg.addhook( r'bin/aclocal(-\w.\w+)?$',aclocal.Normalizer( prefix ))
+        pkg.addhook( r'bin/autoconf$',autoconf.Normalizer( prefix ))
+        pkg.addhook( r'bin/autoscan$',autoscan.Normalizer( prefix ))
+        pkg.addhook( r'bin/autoupdate$',autoupdate.Normalizer( prefix ))
+        pkg.addhook( r'bin/autoreconf$',autoreconf.Normalizer( prefix ))
+        pkg.addhook( r'bin/autoheader$',autoheader.Normalizer( prefix ))
+        pkg.addhook( r'bin/autom4te$',autom4te.Normalizer( prefix ))
+        pkg.addhook( r'bin/automake(-\w.\w+)?$',automake.Normalizer( prefix ))
+        pkg.addhook( r'bin/ifnames$',ifnames.Normalizer( prefix ))
+        pkg.addhook( r'bin/libtoolize$',libtoolize.Normalizer( prefix ))
+        pkg.addhook( r'share/autoconf/autom4te.cfg$',autom4te_cfg.Normalizer( prefix ))
+        pkg.addhook( r'share/automake(-\w.\w+)/Automake/Config.pm$',Automake_Config_pm.Normalizer( prefix ))        
+
+        replacer =prefix_replace.Normalizer( prefix )
+        pkg.addhook( r'bin/(autopoint|gettextize|intltoolize)$',replacer)
+        pkg.addhook( r'share/doc/gettext/examples/installpaths$',replacer)
 
     pkg.addfile( desc.dump(),".desc")
 

@@ -69,8 +69,7 @@ class FilesProvider(object):
     # Usually DLLs have 0 or 1 version components (just the major version), but
     # some packages like Nettle add 2, so we check for upto 2. We don't use
     # {m,n} here because we want to capture all the matches.
-    # arch suffix for openssl
-    _DLL_REGEX = r'^(lib)?{}(-[0-9]+)?([\-_][0-9]+)?(-x64)?\.dll$'
+    _DLL_REGEX = r'^(lib)?{}(-[0-9]+)?(-[0-9]+)?\.dll$'
     # UNIX shared libraries can have between 0 and 3 version components:
     # major, minor, micro. We don't use {m,n} here because we want to capture
     # all the matches.

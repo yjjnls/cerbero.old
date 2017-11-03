@@ -126,7 +126,7 @@ class Pack(Command):
         'prefix':'gstreamer-',
         'deps':[]})
 
-        MakePackage(config.build_tools_prefix,args.output_dir,desc )
+        MakePackage(config.build_tools_prefix,args.output_dir,desc,build_tools=True )
 
     def _origin_description(self,config ,args):
         bs = self.bs

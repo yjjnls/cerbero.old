@@ -34,16 +34,12 @@ def register_bootstrapper(distro, klass, distro_version=None):
 
 
 class Bootstrapper (object):
-    def __new__(klass, config, build_tools_only,build_tools_disable):
+    def __new__(klass, config, build_tools_only):
         bs = []
 
         bs.append(BuildTools(config))
         if build_tools_only:
             return bs
-        
-        if build_tools_disable:
-            bs =[]
-
 
         target_distro = config.target_distro
         distro = config.distro

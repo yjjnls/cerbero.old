@@ -30,15 +30,9 @@ if os.path.exists('cerbero.cac'):
 
 
 if platform.system() == 'Windows':
-    #import cerbero.bootstrap.build_tools
-    #import cerbero.bootstrap.hijack.build_tools
-    #cerbero.bootstrap.build_tools.BuildTools = \
-    #cerbero.bootstrap.hijack.build_tools.BuildTools
-
-    #overwrite windows bootstrap with hijack one
-    import cerbero.bootstrap.bootstrapper
-    import cerbero.bootstrap.hijack.windows
-    cerbero.bootstrap.hijack.windows.register_all()
+    import cerbero.build.filesprovider
+    # arch suffix for openssl
+    cerbero.build.filesprovider.FilesProvider._DLL_REGEX = r'^(lib)?{}(-[0-9]+)?([\-_][0-9]+)?(-x64)?\.dll$'
 
     import cerbero.build.build
     import cerbero.build.hijack.cmake

@@ -62,7 +62,8 @@ class Base(object):
 
 class Component(Base):
 
-    def __init__(self,prefix):
+    def __init__(self,prefix,build_tools=False):
+        self.is_build_tools=build_tools
         Base.__init__(self,prefix)
 
     def install(self, repo, filter={}):
@@ -71,6 +72,26 @@ class Component(Base):
         pkg.addhook( r'.*\.pc$',pc.Extractor(self.prefix))
         pkg.addhook( r'.*\.la$',la.Extractor(self.prefix))
         pkg.addhook( r'.desc$',PkgFileSkipper(self.prefix))
+        if self.is_build_tools:
+            from cerbero.cpm.autotools import aclocal,autoconf,autoreconf,autoheader,autom4te,automake,autoscan,autoupdate
+            from cerbero.cpm.autotools import ifnames,autom4te_cfg,Automake_Config_pm,prefix_replace,libtoolize
+            
+            pkg.addhook( r'bin/aclocal(-\w.\w+)?$',aclocal.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autoconf$',autoconf.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autoscan$',autoscan.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autoupdate$',autoupdate.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autoreconf$',autoreconf.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autoheader$',autoheader.Extractor( self.prefix ))
+            pkg.addhook( r'bin/autom4te$',autom4te.Extractor( self.prefix ))
+            pkg.addhook( r'bin/automake(-\w.\w+)?$',automake.Extractor( self.prefix ))
+            pkg.addhook( r'bin/ifnames$',ifnames.Extractor( self.prefix ))
+            pkg.addhook( r'bin/libtoolize$',libtoolize.Extractor( self.prefix ))
+            pkg.addhook( r'share/autoconf/autom4te.cfg$',autom4te_cfg.Extractor( self.prefix ))
+            pkg.addhook( r'share/automake(-\w.\w+)/Automake/Config.pm$',Automake_Config_pm.Extractor( self.prefix ))        
+
+            replacer =prefix_replace.Extractor( self.prefix )
+            pkg.addhook( r'bin/(autopoint|gettextize|intltoolize)$',replacer)
+            pkg.addhook( r'share/doc/gettext/examples/installpaths$',replacer)
 
         for filename , info in filter.viewitems():
             sha1=info.get('SHA1',None)
