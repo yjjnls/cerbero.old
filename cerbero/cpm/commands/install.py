@@ -24,9 +24,9 @@ from cerbero.commands import Command, register_command
 from cerbero.build.cookbook import CookBook
 from cerbero.build.oven import Oven
 from cerbero.utils import _, N_, ArgparseArgument
-from cerbero.tools.mkpkg import Packager, BuildTree
+#from cerbero.tools.mkpkg import Packager, BuildTree
 from cerbero.utils import messages as m
-from cerbero.tools import cpm
+#from cerbero.tools import cpm
 
 
 
@@ -41,14 +41,16 @@ class Installer(Command):
 
             ArgparseArgument('--repo', type=str,                    
                 help=_('respsitory of the objects stored')),
+                
+            ArgparseArgument('--build-tools', action='store_true',
+                default=False,
+                help=_('Install for build-tools')),
+
 
             ArgparseArgument('--type', type=str,
-                default='component',choices=['component','build','bundle','build-tools'],
+                default='component',choices=['component','build','bundle'],
                 help=_('type of the object'))
 
-            #ArgparseArgument('--prefix', type=str,
-            #    default='',
-            #    help=_('prefix of install directory.'))
             ]
         
         Command.__init__(self, args)
@@ -58,24 +60,21 @@ class Installer(Command):
         filter={}
         repo=None
 
+        inst_prefix=config.prefix
+
+        if args.build_tools:
+            inst_prefix=config.build_tools_prefix
+
         if args.type == 'component':
             from cerbero.cpm.setup import Component
-            installer = Component( config.prefix)
+            installer = Component( inst_prefix)
             repo = args.repo
             for filename in args.elements:
                 filter[filename] ={}
         elif args.type == 'build':
             from cerbero.cpm.setup import Build
-            installer = Build( config.prefix)
-            repo = args.repo
-            #for filename in args.elements:
-            #    filter[filename] ={}
-        elif args.type == 'build-tools':
-            from cerbero.cpm.setup import Component
-            installer = Component( config.build_tools_prefix,build_tools=True)
-            repo = args.repo
-            for filename in args.elements:
-                filter[filename] ={}        
+            installer = Build( inst_prefix)
+            repo = args.repo      
         else:
             assert None,"Unkown command %s"%args.type
 
@@ -83,135 +82,135 @@ class Installer(Command):
 
 
 
-    def _run(self, config, args):
-        self.build_tree = BuildTree(config)
-        self.config = config
-        self.args = args
+    #ef _run(self, config, args):
+    #   self.build_tree = BuildTree(config)
+    #   self.config = config
+    #   self.args = args
+    #
+    #   if args.type == 'build-tools':
+    #       self._build_tools( config ,args )
+    #       return
+    #   recipes = self._get_recipes()
+    #
+    #   m.message('totoal %d recipes.'%len(recipes))
+    #
+    #   if not self.args.build_desc_only:
+    #       for name in recipes:
+    #           m.message('pack %s'%name)
+    #           pkg = Packager(config,name)
+    #           pkg.make( args.prefix,args.output_dir)
+    #
+    #
+    #   self._gen_packages_yaml()
+    #
+    #
+    #
+    #   return
 
-        if args.type == 'build-tools':
-            self._build_tools( config ,args )
-            return
-        recipes = self._get_recipes()
+    #def _get_recipes(self):
+    #    bt = self.build_tree
+    #    recipes = self.args.module
+    #    if self.args.type == 'package':
+    #        all=[]
+    #        for pkg in recipes:
+    #            all +=bt.recipes(pkg)
+    #        return all
+    #
+    #    elif self.args.type == 'sdk':
+    #        all=[]
+    #        for sdk in recipes:
+    #            for pkg in bt.packages(sdk):
+    #                all += bt.recipes(pkg)
+    #        return all
+    #    else:
+    #        return recipes
+    #
+    #def _build_tools(self, config, args):
+    #    bt = BuildTree(config)
+    #    pkg = bt.package('gstreamer-1.0')
+    #
+    #    assert pkg.sdk_version == '1.0'
+    #    
+    #    
+    #    info ={'name':'build-tools',
+    #    'platform':config.platform,
+    #    'arch':config.arch,
+    #    'version':pkg.version,
+    #    'type':'runtime',
+    #    'prefix':args.prefix,
+    #    'deps':[] }
+    #
+    #    from cerbero.tools.cpm import Pack
+    #    from cerbero.tools.cpm import Desc
+    #
+    #
+    #    Pack(config.build_tools_prefix,args.output_dir,info )
+    #
+    #def _origin_description(self):
+    #    info={    }
+    #
+    #    if self.args.type == 'sdk':
+    #        SDKs={}
+    #        for sdk in self.args.module:
+    #            version = self.build_tree.store.get_package(sdk).version
+    #
+    #            SDKs[sdk]=[{'version':version}]
+    #            packages=[]
+    #            for pkg in self.build_tree.packages(sdk):
+    #                packages.append(pkg)
+    #            SDKs[sdk].append({'packages':packages})
+    #        info['SDK']=SDKs
+    #                
+    #    
+    #    return info
 
-        m.message('totoal %d recipes.'%len(recipes))
-
-        if not self.args.build_desc_only:
-            for name in recipes:
-                m.message('pack %s'%name)
-                pkg = Packager(config,name)
-                pkg.make( args.prefix,args.output_dir)
-
-
-        self._gen_packages_yaml()
-
-
-
-        return
-
-    def _get_recipes(self):
-        bt = self.build_tree
-        recipes = self.args.module
-        if self.args.type == 'package':
-            all=[]
-            for pkg in recipes:
-                all +=bt.recipes(pkg)
-            return all
-
-        elif self.args.type == 'sdk':
-            all=[]
-            for sdk in recipes:
-                for pkg in bt.packages(sdk):
-                    all += bt.recipes(pkg)
-            return all
-        else:
-            return recipes
-
-    def _build_tools(self, config, args):
-        bt = BuildTree(config)
-        pkg = bt.package('gstreamer-1.0')
-
-        assert pkg.sdk_version == '1.0'
-        
-        
-        info ={'name':'build-tools',
-        'platform':config.platform,
-        'arch':config.arch,
-        'version':pkg.version,
-        'type':'runtime',
-        'prefix':args.prefix,
-        'deps':[] }
-
-        from cerbero.tools.cpm import Pack
-        from cerbero.tools.cpm import Desc
-
-
-        Pack(config.build_tools_prefix,args.output_dir,info )
-
-    def _origin_description(self):
-        info={    }
-
-        if self.args.type == 'sdk':
-            SDKs={}
-            for sdk in self.args.module:
-                version = self.build_tree.store.get_package(sdk).version
-
-                SDKs[sdk]=[{'version':version}]
-                packages=[]
-                for pkg in self.build_tree.packages(sdk):
-                    packages.append(pkg)
-                SDKs[sdk].append({'packages':packages})
-            info['SDK']=SDKs
-                    
-        
-        return info
-
-    def _gen_packages_yaml(self):
-        from cerbero.tools.cpm import Pack,Desc
-
-        info={
-            'platform': self.config.platform,
-            'arch':self.config.arch,
-            'origin': self._origin_description()
-        }
-
-        recipes = self._get_recipes()
-        packages={}
-        cookbook = self.build_tree.cookbook
-        for name in recipes:    
-            recipe = cookbook.get_recipe(name)
-
-            pkg = packages.get(name,{})
-            pkg['version'] = recipe.version
-
-
-            for ptype in ['runtime','devel']:
-                desc = Desc()
-                desc.name = recipe.name
-                desc.version = recipe.version
-                desc.platform = self.config.platform
-                desc.arch = self.config.arch
-                desc.type = ptype
-                desc.prefix = self.args.prefix
-                      
-
-                filename = desc.filename()
-                path = os.path.join(self.args.output_dir,filename)
-                assert os.path.exists(path),'''
-                package %s not exists!
-                '''%filename
-
-                pkg[ptype]={'filename':filename,
-                    'SHA1':SHA1(path) }
-
-            packages[recipe.name] = pkg
-        info['component']= packages
-
-        import yaml
-
-        f = open(os.path.join(self.args.output_dir,'Build.yaml'),'w+')
-        data = yaml.dump(info,default_style=False,default_flow_style=False)
-        f.write(data)
-        f.close()
+    #f _gen_packages_yaml(self):
+    #  from cerbero.tools.cpm import Pack,Desc
+    #
+    #  info={
+    #      'platform': self.config.platform,
+    #      'arch':self.config.arch,
+    #      'origin': self._origin_description()
+    #  }
+    #
+    #  recipes = self._get_recipes()
+    #  packages={}
+    #  cookbook = self.build_tree.cookbook
+    #  for name in recipes:    
+    #      recipe = cookbook.get_recipe(name)
+    #
+    #      pkg = packages.get(name,{})
+    #      pkg['version'] = recipe.version
+    #
+    #
+    #      for ptype in ['runtime','devel']:
+    #          desc = Desc()
+    #          desc.name = recipe.name
+    #          desc.version = recipe.version
+    #          desc.platform = self.config.platform
+    #          desc.arch = self.config.arch
+    #          desc.type = ptype
+    #          desc.prefix = self.args.prefix
+    #                
+    #
+    #          filename = desc.filename()
+    #          path = os.path.join(self.args.output_dir,filename)
+    #          assert os.path.exists(path),'''
+    #          package %s not exists!
+    #          '''%filename
+    #
+    #          pkg[ptype]={'filename':filename,
+    #              'SHA1':SHA1(path) }
+    #
+    #      packages[recipe.name] = pkg
+    #  info['component']= packages
+    #
+    #  import yaml
+    #
+    #  f = open(os.path.join(self.args.output_dir,'Build.yaml'),'w+')
+    #  data = yaml.dump(info,default_style=False,default_flow_style=False)
+    #  f.write(data)
+    #  f.close()
 
    
 

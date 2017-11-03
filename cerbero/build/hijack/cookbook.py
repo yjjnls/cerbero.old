@@ -22,7 +22,8 @@ import pickle
 import time
 import imp
 
-import cerbero.build
+import cerbero.build.cookbook
+
 CookBookBase = cerbero.build.cookbook.CookBook
 
 

@@ -228,7 +228,7 @@ class PkgFile(object):
 class Component(object):
 
 
-    def __init__( self, config ,name):
+    def __init__( self, config ,name, prefix='',build_tools=False):
         self.config  = config        
         self.name = name
         self.bs = BuildSystem(config)
@@ -240,8 +240,14 @@ class Component(object):
         self.desc.platform = self.config.platform
         self.desc.arch = self.config.arch
         self.desc.version = self.recipe.version
+        self.desc.prefix=prefix #prefix of package name 
     
         self.desc.dependencies=self._deps()
+
+        if build_tools:
+            self.rootd = self.config.build_tools_prefix
+        else:
+            self.rootd = self.config.prefix
 
 
     def _deps(self):
@@ -258,36 +264,37 @@ class Component(object):
 
         items=[]
         for i in self.recipe.dist_files_list():
-            path = os.path.join(self.config.prefix,i )
+            path = os.path.join(self.rootd,i )
             if os.path.exists(path):
                 items.append(i)
 
         self.desc.prefix = prefix
         self.desc.type = 'runtime'
 
-        Pack(self.config.prefix,output_dir,self.desc ,items)
+        Pack(self.rootd,output_dir,self.desc ,items)
         
     def _mkdevel(self,prefix,output_dir):
 
         items=[]
         for i in self.recipe.devel_files_list():
-            path = os.path.join(self.config.prefix,i )
+            path = os.path.join(self.rootd,i )
             if os.path.exists(path):
                 items.append(i)
 
         self.desc.prefix = prefix
         self.desc.type = 'devel'
 
-        Pack(self.config.prefix,output_dir,self.desc ,items)
+        Pack(self.rootd,output_dir,self.desc ,items)
 
-    def make(self,prefix='',output_dir='.'):        
+    def make(self,prefix='',output_dir='.',runtime_only=False):        
         odir = os.path.abspath( output_dir)
         self._mkruntime(prefix,output_dir)
-        self._mkdevel(prefix,output_dir)
+        if not runtime_only:
+            self._mkdevel(prefix,output_dir)
 
 
-def Pack(prefix,output_dir, desc, items=[''],build_tools=False):
-
+def Pack(prefix,output_dir, desc, items=['']):
+    
     path = os.path.join(output_dir,desc.filename())
 
     pkg = PkgFile(prefix)
@@ -296,27 +303,6 @@ def Pack(prefix,output_dir, desc, items=[''],build_tools=False):
 
     pkg.addhook( r'.*\.pc$',pc.Normalizer( prefix ))
     pkg.addhook( r'.*\.la$',la.Normalizer( prefix ))
-    if build_tools:
-        from cerbero.cpm.autotools import aclocal,autoconf,autoreconf,autoheader,autom4te,automake,autoscan,autoupdate
-        from cerbero.cpm.autotools import ifnames,autom4te_cfg,Automake_Config_pm,prefix_replace,libtoolize
-        
-        pkg.addhook( r'bin/aclocal(-\w.\w+)?$',aclocal.Normalizer( prefix ))
-        pkg.addhook( r'bin/autoconf$',autoconf.Normalizer( prefix ))
-        pkg.addhook( r'bin/autoscan$',autoscan.Normalizer( prefix ))
-        pkg.addhook( r'bin/autoupdate$',autoupdate.Normalizer( prefix ))
-        pkg.addhook( r'bin/autoreconf$',autoreconf.Normalizer( prefix ))
-        pkg.addhook( r'bin/autoheader$',autoheader.Normalizer( prefix ))
-        pkg.addhook( r'bin/autom4te$',autom4te.Normalizer( prefix ))
-        pkg.addhook( r'bin/automake(-\w.\w+)?$',automake.Normalizer( prefix ))
-        pkg.addhook( r'bin/ifnames$',ifnames.Normalizer( prefix ))
-        pkg.addhook( r'bin/libtoolize$',libtoolize.Normalizer( prefix ))
-        pkg.addhook( r'share/autoconf/autom4te.cfg$',autom4te_cfg.Normalizer( prefix ))
-        pkg.addhook( r'share/automake(-\w.\w+)/Automake/Config.pm$',Automake_Config_pm.Normalizer( prefix ))        
-
-        replacer =prefix_replace.Normalizer( prefix )
-        pkg.addhook( r'bin/(autopoint|gettextize|intltoolize)$',replacer)
-        pkg.addhook( r'share/doc/gettext/examples/installpaths$',replacer)
-
     pkg.addfile( desc.dump(),".desc")
 
 

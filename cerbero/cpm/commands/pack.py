@@ -22,7 +22,7 @@ from cerbero.commands import Command, register_command
 from cerbero.build.cookbook import CookBook
 from cerbero.build.oven import Oven
 from cerbero.utils import _, N_, ArgparseArgument
-from cerbero.tools.mkpkg import Packager, BuildTree
+#from cerbero.tools.mkpkg import Packager, BuildTree
 from cerbero.utils import messages as m
 from cerbero.cpm.utils import SHA1
 from cerbero.cpm.buildsystem import BuildSystem
@@ -40,8 +40,12 @@ class Pack(Command):
                     help=_('name of the objects to pack')),
 
                 ArgparseArgument('--type', type=str,
-                    default='recipe',choices=['recipe','package','sdk','build-tools'],
+                    default='recipe',choices=['recipe','package','sdk'],
                     help=_('type of the moudle')),
+
+                ArgparseArgument('--build-tools', action='store_true',
+                    default=False,
+                    help=_('Package for build-tools')),
 
                 ArgparseArgument('--gen-desc-only', action='store_true',
                     default=False,
@@ -62,9 +66,9 @@ class Pack(Command):
         self.bs = BuildSystem(config)
 
 
-        if args.type == 'build-tools':
-            self._build_tools( config ,args )
-            return
+        #if args.type == 'build-tools':
+        #    self._build_tools( config ,args )
+        #    return
 
         recipes = self._get_recipes(config ,args)
 
@@ -74,7 +78,17 @@ class Pack(Command):
             i=1
             for name in recipes:
                 print '  %3d. %-20s'%(i,name),
-                component = Component( config, name)
+
+                
+                if args.build_tools and not args.prefix:
+                    sdk = self.bs.SDKs()
+                    gst = sdk['gstreamer-1.0']
+                    assert gst.sdk_version == '1.0'
+                    args.prefix = 'gstreamer-'+ gst.version +'-build_tools-'
+                    
+
+
+                component = Component( config, name,args.prefix,args.build_tools)
                 component.make( args.prefix,args.output_dir)
                 print '   [OK]'
                 i +=1
@@ -105,28 +119,28 @@ class Pack(Command):
         else:
             return recipes
 
-    def _build_tools(self, config, args):
-        bs = self.bs
-        sdk = bs.SDKs()
-        gst = sdk['gstreamer-1.0']
-
-
-        #bt = BuildTree(config)
-        #pkg = bt.package('gstreamer-1.0')
-
-        assert gst.sdk_version == '1.0'
-        
-        
-        desc = Description()
-        desc.from_dict({'name':'build-tools',
-        'platform':config.platform,
-        'arch':config.arch,
-        'version':gst.version,
-        'type':'runtime',
-        'prefix':'gstreamer-',
-        'deps':[]})
-
-        MakePackage(config.build_tools_prefix,args.output_dir,desc,build_tools=True )
+    #def _build_tools(self, config, args):
+    #    bs = self.bs
+    #    sdk = bs.SDKs()
+    #    gst = sdk['gstreamer-1.0']
+#
+#
+    #    #bt = BuildTree(config)
+    #    #pkg = bt.package('gstreamer-1.0')
+#
+    #    assert gst.sdk_version == '1.0'
+    #    
+    #    
+    #    desc = Description()
+    #    desc.from_dict({'name':'build-tools',
+    #    'platform':config.platform,
+    #    'arch':config.arch,
+    #    'version':gst.version,
+    #    'type':'runtime',
+    #    'prefix':'gstreamer-',
+    #    'deps':[]})
+#
+    #    MakePackage(config.build_tools_prefix,args.output_dir,desc,build_tools=True )
 
     def _origin_description(self,config ,args):
         bs = self.bs
@@ -150,7 +164,7 @@ class Pack(Command):
         return info
 
     def _gen_desc_yaml(self,config,args):
-        from cerbero.tools.cpm import Pack,Desc
+        #from cerbero.tools.cpm import Pack,Desc
 
         info={
             'platform': config.platform,

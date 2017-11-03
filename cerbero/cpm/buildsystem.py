@@ -24,7 +24,7 @@ import tarfile
 import json    
 
 from cerbero.build.cookbook import CookBook
-from cerbero.tools.cpm import Pack,Desc
+#from cerbero.tools.cpm import Pack,Desc
 from cerbero.packages.packagesstore import PackagesStore
 from cerbero.packages.package import SDKPackage
 from cerbero.utils import messages as m
