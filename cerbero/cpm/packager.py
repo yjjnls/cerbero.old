@@ -41,6 +41,8 @@ class Description(object):
     'arch','version','type','prefix',
     'dependencies']
 
+    requires=None
+
 
     def __init__(self,format='yaml'):
         for name in self._properties:
@@ -50,6 +52,10 @@ class Description(object):
 
     def from_dict(self,desc):
         for name ,value in desc.viewitems():
+            if name == '.requires':
+                self.requires = value
+                continue
+
             if name in self._properties:
                 setattr(self,name,value)
 
@@ -57,6 +63,8 @@ class Description(object):
         desc={}
         for name in self._properties:
             desc[name] =getattr(self,name)
+        if self.requires:
+            desc['.requires']=self.requires
         return desc
 
     def from_recipe(self,config ,name):

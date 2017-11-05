@@ -28,13 +28,24 @@ class Bootstrap(Command):
 
     def __init__(self):
         args = [
+            ArgparseArgument('--build-tools-disable', action='store_true',
+                default=False, help=_('diable building build-tools during bootstrap')),
+
             ArgparseArgument('--build-tools-only', action='store_true',
                 default=False, help=_('only bootstrap the build tools'))]
         Command.__init__(self, args)
 
     def run(self, config, args):
         bootstrappers = Bootstrapper(config, args.build_tools_only)
+
         for bootstrapper in bootstrappers:
+            if not args.build_tools_only and args.build_tools_disable:
+                from cerbero.bootstrap.build_tools import BuildTools
+                if isinstance(bootstrapper,BuildTools ):
+                    from cerbero.utils import messages as m
+                    m.message('skip the building for build-tools')
+                    continue 
+
             bootstrapper.start()
 
 register_command(Bootstrap)

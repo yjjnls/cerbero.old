@@ -30,15 +30,13 @@ if os.path.exists('cerbero.cac'):
 
 
 if platform.system() == 'Windows':
-    import cerbero.build.filesprovider
+    from cerbero.build.filesprovider import FilesProvider
     from cerbero.config import Platform
-    # arch suffix for openssl
-    cerbero.build.filesprovider.FilesProvider.EXTENSIONS[Platform.WINDOWS]['sregex']= \
-    cerbero.build.filesprovider.FilesProvider._DLL_REGEX = \
-    r'^(lib)?{}(-[0-9]+)?([\-_][0-9]+)?(-x64)?\.dll$'
-    
-    print '+++',cerbero.build.filesprovider.FilesProvider._DLL_REGEX
 
+    FilesProvider.EXTENSIONS[Platform.WINDOWS]['sregex']= \
+    FilesProvider._DLL_REGEX = \
+    r'^(lib)?{}(-[0-9]+)?([\-_][0-9]+)?(-x64)?\.dll$' # arch suffix
+    
     import cerbero.build.build
     import cerbero.build.hijack.cmake
     cerbero.build.build.BuildType.AUTOCMAKE= \

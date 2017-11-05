@@ -94,6 +94,17 @@ class Component(Base):
             else:
                 os.makedirs(instd)
             m.message('install component %s %s (%s)'%(name,version,ptype))
+
+            requires = desc.get('.requires',None)
+
+            if requires:
+                if requires.has_key('install-directory'):
+                    if  os.path.normcase( os.path.normpath( self.prefix )) != \
+                    os.path.normcase( os.path.normpath( requires['install-directory'])):
+                        m.warning('The package install to %s may not work,since the package requires to %s.'%(
+                            self.prefix,requires['install-directory']
+                        ) )
+
             f=open(os.path.join(instd,'.desc'),'w')
             f.write(content)
             f.close()

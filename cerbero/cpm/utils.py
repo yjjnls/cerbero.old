@@ -62,7 +62,6 @@ def relpath(path, prefix):
         return ''
         
     if rpath.startswith("..") or n < 0 :
-        print path,'@',prefix,'***********************',rpath
         return None
 
     return upath[n:].strip('/')

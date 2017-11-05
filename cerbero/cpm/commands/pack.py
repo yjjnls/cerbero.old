@@ -63,14 +63,15 @@ class Pack(Command):
             Command.__init__(self, args)
 
     def run(self, config, args):
+
         self.bs = BuildSystem(config)
 
-
-        #if args.type == 'build-tools':
-        #    self._build_tools( config ,args )
-        #    return
+        if args.build_tools and args.type == 'package':
+            self._build_tools(config,args)
+            return
 
         recipes = self._get_recipes(config ,args)
+        
 
         m.message('totoal %d recipes.'%len(recipes))
 
@@ -104,6 +105,7 @@ class Pack(Command):
         all=[]
         recipes = args.object
         if args.type == 'package':
+           
             for pkg in args.object:
                 all += bs.get_package_recipes(pkg)
             return all
@@ -119,28 +121,26 @@ class Pack(Command):
         else:
             return recipes
 
-    #def _build_tools(self, config, args):
-    #    bs = self.bs
-    #    sdk = bs.SDKs()
-    #    gst = sdk['gstreamer-1.0']
-#
-#
-    #    #bt = BuildTree(config)
-    #    #pkg = bt.package('gstreamer-1.0')
-#
-    #    assert gst.sdk_version == '1.0'
-    #    
-    #    
-    #    desc = Description()
-    #    desc.from_dict({'name':'build-tools',
-    #    'platform':config.platform,
-    #    'arch':config.arch,
-    #    'version':gst.version,
-    #    'type':'runtime',
-    #    'prefix':'gstreamer-',
-    #    'deps':[]})
-#
-    #    MakePackage(config.build_tools_prefix,args.output_dir,desc,build_tools=True )
+    def _build_tools(self, config, args):
+        bs = self.bs
+        sdk = bs.SDKs()
+        gst = sdk['gstreamer-1.0']
+
+        assert gst.sdk_version == '1.0'
+        
+        
+        desc = Description()
+        desc.from_dict({'name':'build-tools',
+        'platform':config.platform,
+        'arch':config.arch,
+        'version':gst.version,
+        'type':'runtime',
+        'prefix':'gstreamer-',
+        'deps':[],
+        '.requires':{'install-directory': config.build_tools_prefix}
+        })
+
+        MakePackage(config.build_tools_prefix,args.output_dir,desc )
 
     def _origin_description(self,config ,args):
         bs = self.bs

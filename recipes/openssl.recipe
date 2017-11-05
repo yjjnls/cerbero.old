@@ -53,7 +53,7 @@ class Recipe(recipe.Recipe):
                 'MSVS':self.VCVARS,
                 'ActivePerl':self.ActivePerl,
                 'prefix':self.config.prefix,
-                'openssldir':'d:/tmp/openssl.dir',
+                'openssldir':self.config.prefix,
                 'arch':arch
             },self.make_dir)
         else:
@@ -68,7 +68,7 @@ class Recipe(recipe.Recipe):
                 'MSVS':self.VCVARS,
             },self.make_dir)
         else:
-            super(Recipe,self).configure()
+            super(Recipe,self).compile()
 
     def install(self):
         if self.config.target_platform == Platform.WINDOWS:
@@ -82,7 +82,7 @@ class Recipe(recipe.Recipe):
                         os.path.join(self.config.prefix,'lib/crypto.lib'))
 
         else:
-            super(Recipe,self).configure()
+            super(Recipe,self).install()
 
         self._gen_pc()
             

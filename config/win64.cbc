@@ -1,4 +1,5 @@
-prefix='d:/taoarch/gstreamer/1.0/x86_64'
+rootd=os.path.abspath( os.path.dirname(__file__)+'/..')
+prefix=os.path.join(rootd,'x86_64d')
 #build_tools_prefix='/mingw/build-tools/x86_64'
 from cerbero.config import Architecture
 arch = Architecture.X86_64
