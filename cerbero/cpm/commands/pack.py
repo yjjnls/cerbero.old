@@ -65,10 +65,14 @@ class Pack(Command):
     def run(self, config, args):
 
         self.bs = BuildSystem(config)
+        if args.build_tools:
+            from cerbero.bootstrap.build_tools import BuildTools
+            self.BUILD_TOOLS = BuildTools( config ).BUILD_TOOLS
 
-        if args.build_tools and args.type == 'package':
-            self._build_tools(config,args)
-            return
+
+        #if args.build_tools and args.type == 'package':
+        #    self._build_tools(config,args)
+        #    return
 
         recipes = self._get_recipes(config ,args)
         
@@ -88,7 +92,10 @@ class Pack(Command):
                     args.prefix = 'gstreamer-'+ gst.version +'-build_tools-'
                     
 
-
+                #if args.build_tools:
+                #    self.bs = BuildSystem(config)
+                #    print self.bs._cookbook,'<-----'
+				
                 component = Component( config, name,args.prefix,args.build_tools)
                 component.make( args.prefix,args.output_dir)
                 print '   [OK]'
@@ -105,6 +112,11 @@ class Pack(Command):
         all=[]
         recipes = args.object
         if args.type == 'package':
+           
+            if args.build_tools:
+#                from cerbero.bootstrap.build_tools import BuildTools
+#                bt = BuildTools( config )
+                return self.BUILD_TOOLS
            
             for pkg in args.object:
                 all += bs.get_package_recipes(pkg)
