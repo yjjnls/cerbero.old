@@ -70,9 +70,9 @@ class Pack(Command):
             self.BUILD_TOOLS = BuildTools( config ).BUILD_TOOLS
 
 
-        #if args.build_tools and args.type == 'package':
-        #    self._build_tools(config,args)
-        #    return
+        if args.build_tools and args.type == 'package':
+            self._build_tools(config,args)
+            return
 
         recipes = self._get_recipes(config ,args)
         
