@@ -81,64 +81,48 @@ if cac.get('mirror',None):
             _old_shell_download( url,destination,recursive,check_cert,overwrite)
     shell.download = _hijack_download
 
-
-#
-# Installed one will not build
-#
-#    def get_recipe(self, name):
-#        '''
-#        Gets a recipe from its name
-#
-#        @param name: name of the recipe
-#        @type name: str
-#        '''
-#        if name in self._invalid_recipes:
-#            raise self._invalid_recipes[name]
-#        if name not in self.recipes:
-#            raise RecipeNotFoundError(name)
-#        return self.recipes[name]
-#
 import cerbero.build.hijack.cookbook
 
 
 #bootstrap windows
-
-_old_install_python_sdk=cerbero.bootstrap.windows.WindowsBootstrapper.install_python_sdk
-
-def _install_python_sdk(self):
-    try:
-        from cerbero.utils import shell
-        from cerbero.utils import messages as m
-
-        url='https://github.com/Mingyiz/cerbero/releases/download/v0.1/python27-windows.tar.bz2'
-        m.action(_("Installing Python headers"))
-        tmp_dir = tempfile.mkdtemp()
-
-        filename=os.path.basename(url)
-
-        path =os.path.join(tmp_dir,filename)
-
-        shell.download(url,path)
+if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
+    from cerbero.bootstrap.windows import WindowsBootstrapper
+    _old_install_python_sdk=WindowsBootstrapper.install_python_sdk
     
-        python_headers = os.path.join(self.prefix, 'include', 'Python2.7')
-        python_headers = to_unixpath(os.path.abspath(python_headers))
-
-        shell.call('mkdir -p %s' % python_headers)
-        python_libs = os.path.join(self.prefix, 'lib')
-        python_libs = to_unixpath(python_libs)
-
-        temp = to_unixpath(os.path.abspath(tmp_dir))
-        shell.call('cp -f %s/windows-external-sdk/python27/%s/include/* %s' %
-                    (temp, self.version, python_headers))
-        shell.call('cp -f %s/windows-external-sdk/python27/%s/lib/* %s' %
-                    (temp, self.version, python_libs))
+    def _install_python_sdk(self):
         try:
-            os.remove('%s/lib/python.dll' % self.prefix)
-        except:
-            pass
-        shell.call('ln -s python27.dll python.dll', '%s/lib' % self.prefix)
-        shutil.rmtree(tmp_dir)
-    except:        
-        _old_install_python_sdk
+            from cerbero.utils import shell
+            from cerbero.utils import messages as m
+            
+            url=cac.get('WINDOWS_PYTHON_SDK_TARBALL')
+            m.action(_("Installing Python headers from %s"%url))
+            tmp_dir = tempfile.mkdtemp()
 
-cerbero.bootstrap.windows.WindowsBootstrapper.install_python_sdk=_install_python_sdk
+            filename=os.path.basename(url)
+
+            path =os.path.join(tmp_dir,filename)
+
+            shell.download(url,path)
+        
+            python_headers = os.path.join(self.prefix, 'include', 'Python2.7')
+            python_headers = to_unixpath(os.path.abspath(python_headers))
+
+            shell.call('mkdir -p %s' % python_headers)
+            python_libs = os.path.join(self.prefix, 'lib')
+            python_libs = to_unixpath(python_libs)
+
+            temp = to_unixpath(os.path.abspath(tmp_dir))
+            shell.call('cp -f %s/windows-external-sdk/python27/%s/include/* %s' %
+                        (temp, self.version, python_headers))
+            shell.call('cp -f %s/windows-external-sdk/python27/%s/lib/* %s' %
+                        (temp, self.version, python_libs))
+            try:
+                os.remove('%s/lib/python.dll' % self.prefix)
+            except:
+                pass
+            shell.call('ln -s python27.dll python.dll', '%s/lib' % self.prefix)
+            shutil.rmtree(tmp_dir)
+        except:        
+            _old_install_python_sdk
+    
+    cerbero.bootstrap.windows.WindowsBootstrapper.install_python_sdk=_install_python_sdk

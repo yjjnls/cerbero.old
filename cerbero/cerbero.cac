@@ -1,0 +1,39 @@
+
+
+_MIRROR_SERVER=r'http://172.16.0.119/WMS/mirrors'
+
+def mirror(url):
+    sites=[
+        'gstreamer.freedesktop.org',
+		'ftp.gnome.org',
+        'ftp.gnu.org',
+		'www.opengl.org',
+		'www.openssl.org',
+		'www.tortall.net',    
+            
+    ]
+    urlmap={
+        #'http://gstreamer.freedesktop.org':
+        #'%s/gstreamer.freedesktop.org'%_MIRROR_SERVER
+    }
+    for i in sites:
+        urlmap['http://%s'%i] = '%s/%s'%(_MIRROR_SERVER,i)
+
+    urlmap['http://cerbero.repo']='https://github.com/Mingyiz/cerbero/releases/download'
+
+    part=None
+
+
+    for src, dest in urlmap.viewitems():
+        
+        if url == src:
+            return dest #complete match
+
+        if url.startswith(src):
+            if part and len(part) > len(src):
+                continue #longer matched
+            part = dest + url[len(src):]
+    return part
+        
+WINDOWS_PYTHON_SDK_TARBALL='http://172.16.0.119/WMS/Mirrors/cerbero.repo/v0.1/python27-windows.tar.bz2'
+
