@@ -86,7 +86,10 @@ import cerbero.build.hijack.cookbook
 
 #bootstrap windows
 if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
+    import cerbero.bootstrap.bootstrapper
     from cerbero.bootstrap.windows import WindowsBootstrapper
+    
+    
     _old_install_python_sdk=WindowsBootstrapper.install_python_sdk
     
     def _install_python_sdk(self):
@@ -125,4 +128,4 @@ if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
         except:        
             _old_install_python_sdk
     
-    cerbero.bootstrap.windows.WindowsBootstrapper.install_python_sdk=_install_python_sdk
+    WindowsBootstrapper.install_python_sdk=_install_python_sdk
