@@ -85,6 +85,11 @@ import cerbero.build.hijack.cookbook
 
 
 #bootstrap windows
+if cac.get('MINGWGET_DEPS'):
+    import cerbero.bootstrap.bootstrapper
+    from cerbero.bootstrap.windows import WindowsBootstrapper
+    WindowsBootstrapper.MINGWGET_DEPS=cac.get('MINGWGET_DEPS')
+    
 if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
     import cerbero.bootstrap.bootstrapper
     from cerbero.bootstrap.windows import WindowsBootstrapper
@@ -93,6 +98,7 @@ if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
     _old_install_python_sdk=WindowsBootstrapper.install_python_sdk
     
     def _install_python_sdk(self):
+        print 'self.prefix', self.prefix,self
         try:
             from cerbero.utils import shell
             from cerbero.utils import messages as m
@@ -106,6 +112,7 @@ if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
             path =os.path.join(tmp_dir,filename)
 
             shell.download(url,path)
+            shell.unpack( path, tmp_dir )
         
             python_headers = os.path.join(self.prefix, 'include', 'Python2.7')
             python_headers = to_unixpath(os.path.abspath(python_headers))
@@ -115,9 +122,10 @@ if cac.get('WINDOWS_PYTHON_SDK_TARBALL'):
             python_libs = to_unixpath(python_libs)
 
             temp = to_unixpath(os.path.abspath(tmp_dir))
-            shell.call('cp -f %s/windows-external-sdk/python27/%s/include/* %s' %
+
+            shell.call('cp -f %s/%s/include/* %s' %
                         (temp, self.version, python_headers))
-            shell.call('cp -f %s/windows-external-sdk/python27/%s/lib/* %s' %
+            shell.call('cp -f %s/%s/lib/* %s' %
                         (temp, self.version, python_libs))
             try:
                 os.remove('%s/lib/python.dll' % self.prefix)
