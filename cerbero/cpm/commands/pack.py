@@ -142,7 +142,7 @@ class Pack(Command):
         
         
         desc = Description()
-        desc.from_dict({'name':'build-tools',
+        desc.from_dict({'name':'build_tools',
         'platform':config.platform,
         'arch':config.arch,
         'version':gst.version,
