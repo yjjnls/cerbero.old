@@ -37,3 +37,4 @@ def mirror(url):
         
 WINDOWS_PYTHON_SDK_TARBALL='http://172.16.0.119/WMS/Mirrors/cerbero.repo/v0.1/python27-windows.tar.bz2'
 
+MINGWGET_DEPS=[]

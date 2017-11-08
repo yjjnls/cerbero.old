@@ -142,7 +142,7 @@ class Pack(Command):
         'arch':config.arch,
         'version':gst.version,
         'type':'runtime',
-        #'prefix':'gstreamer-',
+        'prefix':'',
         'deps':[],
         '.requires':{'install-directory': config.build_tools_prefix}
         })
