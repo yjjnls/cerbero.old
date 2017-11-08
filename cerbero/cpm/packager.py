@@ -191,10 +191,12 @@ class PkgFile(object):
         elif os.path.isdir(path):
             #if arcname:
             #    self._tar.add(path,arcname,recursive=False)
+            print path,'@@@'
 
             for root, dirs, files in os.walk(path):
 
                 for filename in files:
+                    print filename,'<--'
                     #aname = '%s/%s/%s'%(arcname,middle,filename)
                     fpath = os.path.join(root,filename)
                     aname = relpath(fpath,self._root)

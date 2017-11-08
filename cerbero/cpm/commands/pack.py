@@ -65,9 +65,9 @@ class Pack(Command):
     def run(self, config, args):
 
         self.bs = BuildSystem(config)
-        if args.build_tools:
-            from cerbero.bootstrap.build_tools import BuildTools
-            self.BUILD_TOOLS = BuildTools( config ).BUILD_TOOLS
+#        if args.build_tools:
+#            from cerbero.bootstrap.build_tools import BuildTools
+#            self.BUILD_TOOLS = BuildTools( config ).BUILD_TOOLS
 
 
         if args.build_tools and args.type == 'package':
@@ -85,11 +85,11 @@ class Pack(Command):
                 print '  %3d. %-20s'%(i,name),
 
                 
-                if args.build_tools and not args.prefix:
-                    sdk = self.bs.SDKs()
-                    gst = sdk['gstreamer-1.0']
-                    assert gst.sdk_version == '1.0'
-                    args.prefix = 'gstreamer-'+ gst.version +'-build_tools-'
+                #if args.build_tools and not args.prefix:
+                #    sdk = self.bs.SDKs()
+                #    gst = sdk['gstreamer-1.0']
+                #    assert gst.sdk_version == '1.0'
+                #    args.prefix = 'gstreamer-'+ gst.version +'-build_tools-'
                     
 
                 #if args.build_tools:
@@ -112,12 +112,7 @@ class Pack(Command):
         all=[]
         recipes = args.object
         if args.type == 'package':
-           
-            if args.build_tools:
-#                from cerbero.bootstrap.build_tools import BuildTools
-#                bt = BuildTools( config )
-                return self.BUILD_TOOLS
-           
+          
             for pkg in args.object:
                 all += bs.get_package_recipes(pkg)
             return all
@@ -147,10 +142,14 @@ class Pack(Command):
         'arch':config.arch,
         'version':gst.version,
         'type':'runtime',
-        'prefix':'gstreamer-',
+        #'prefix':'gstreamer-',
         'deps':[],
         '.requires':{'install-directory': config.build_tools_prefix}
         })
+
+        print 'MakePackage'
+        print config.build_tools_prefix,args.output_dir,desc
+        print '---------'
 
         MakePackage(config.build_tools_prefix,args.output_dir,desc )
 
