@@ -36,22 +36,25 @@ class Base(object):
             os.makedirs(self.cache_dir)
 
         path = os.path.join(self.cache_dir,basename)
-        if os.path.exists(path):
-            if sha1 is None:
-                return path
-            
-            val = SHA1( path)
-            if val == sha1:
-                return path
+        if os.path.isfile(path):
+
+            if not sha1 is None:
+                val = SHA1( path)
+                if val == sha1:
+                    return path
             os.remove(path)
+        assert not os.path.exists(path),'''
+        failed remove %s,when we want update from %s
+        '''%(path,url)
+
         shell.download( url, path)
         if sha1:
             val = SHA1(path)
-            assert val == sh1,'''
+            assert val == sha1,'''
             error sha-1 check for %s
             expect : %s
             real : %s
-            '''%(url,sh1,val)
+            '''%(url,sha1,val)
         return path
 
     
@@ -158,7 +161,6 @@ class Build(Base):
         Base.__init__(self,prefix)
 
     def install(self, repo, filter={}):
-        
         dbpath = self.path( os.path.join(repo,'Build.yaml') )
         db = yaml.load( open(dbpath,'r'))
 
