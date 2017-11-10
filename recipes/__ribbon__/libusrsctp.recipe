@@ -70,6 +70,22 @@ class Recipe(recipe.Recipe):
     #                    '-Wno-error'})
     #    super(recipe.Recipe, self).configure()
 #
-    #def post_install(self):
-    #    if self.config.target_platform == Platform.LINUX:
-    #        shell.call('mv -f usrsctp.pc libusrsctp.pc', '%s/lib/pkgconfig/'%(self.config.install_dir))
+    def post_install(self):
+        from cerbero.tools.pkgconfig import PkgConfigWritter
+        libprefix=''
+        if self.config.target_platform == Platform.WINDOWS:
+            libprefix='lib'
+
+        #PKG Config file
+        pkgconfigdir = os.environ['PKG_CONFIG_LIBDIR']
+        
+        PkgConfigWritter('libusrsctp',
+        desc   ='Description: SCTP implementation',
+        version= self.version,
+        req    = '',
+        libs   = '-L${libdir} -lusrsctp',
+        cflags = '-I${includedir}',
+        prefix = self.config.prefix
+        ).save('libusrsctp', pkgconfigdir)
+
+
