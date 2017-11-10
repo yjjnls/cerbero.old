@@ -27,9 +27,9 @@ import platform
 
 class Recipe(recipe.Recipe):
     name = 'openwebrtc-gst-plugins'
-    version = '0.3.0-1'
+    version = '0.3.0-2'
     remotes = {'origin': 'https://github.com/EricssonResearch/openwebrtc-gst-plugins.git'}
-    commit = 'ba570daa9a38838ae7a80a01b24e1877f01f6169'
+    commit = '91d339b455c69c16dfd51a3a2f37c1127d4880cc'
     stype = SourceType.GIT
     btype = BuildType.AUTOCMAKE
     #if platform.system() == 'Windows':
@@ -41,7 +41,10 @@ class Recipe(recipe.Recipe):
     #    configure_options = ''
 
     deps = ['libusrsctp']
-    patches = ['openwebrtc-gst-plugins/0001-AutoCMake-adaptation.patch']
+    patches = ['openwebrtc-gst-plugins/%s/0001-CMake-for-commit.patch'%commit,
+	'openwebrtc-gst-plugins/%s/0001-remove-GST_EXPORT-for-gst-sctp.patch'%commit
+	
+	]
     files_libs = ['libgstsctp-1.0']
     files_plugins_devel = [
         'include/gstreamer-1.0/gst/sctp',

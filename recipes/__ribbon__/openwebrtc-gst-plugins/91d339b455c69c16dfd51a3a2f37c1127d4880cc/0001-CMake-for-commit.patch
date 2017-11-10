@@ -1,15 +1,15 @@
-From 4fcd0ea84a58d5003132ab6f515c8d8c6a523743 Mon Sep 17 00:00:00 2001
-From: Mingyi <mingyi.z@outlook.com>
-Date: Fri, 2 Jun 2017 13:25:47 +0800
-Subject: [PATCH] AutoCMake-adaptation
+From 0a6ba44c02acbfbebc2947d8775e0425b1d34dbb Mon Sep 17 00:00:00 2001
+From: Mingyi <zhangmingyi@kedacom.com>
+Date: Fri, 10 Nov 2017 15:49:47 +0800
+Subject: [PATCH] CMake for commit 91d339b455c69c16dfd51a3a2f37c1127d4880cc
 
 ---
- CMakeLists.txt                   | 14 ++++++++++++++
- ext/sctp/CMakeLists.txt          | 27 +++++++++++++++++++++++++++
- gst-libs/gst/sctp/CMakeLists.txt | 21 +++++++++++++++++++++
+ CMakeLists.txt                   | 24 ++++++++++++++++++++++++
+ ext/sctp/CMakeLists.txt          | 30 ++++++++++++++++++++++++++++++
+ gst-libs/gst/sctp/CMakeLists.txt | 22 ++++++++++++++++++++++
  gst/scream/CMakeLists.txt        | 21 +++++++++++++++++++++
  gst/videorepair/CMakeLists.txt   | 19 +++++++++++++++++++
- 5 files changed, 102 insertions(+)
+ 5 files changed, 116 insertions(+)
  create mode 100644 CMakeLists.txt
  create mode 100644 ext/sctp/CMakeLists.txt
  create mode 100644 gst-libs/gst/sctp/CMakeLists.txt
@@ -18,14 +18,24 @@ Subject: [PATCH] AutoCMake-adaptation
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..eb7d83f
+index 0000000..5a44835
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,24 @@
++#
++# This cmake is adapt for openwebrtc-gst-plugins at
++# commit 91d339b455c69c16dfd51a3a2f37c1127d4880cc
++# which submit on 7 Step 2017 on branch
++# https://github.com/EricssonResearch/openwebrtc-gst-plugins.git
++#
++#
++#
++#
++
 +cmake_minimum_required( VERSION 3.0 )
 +
 +project( openwebrtc-gst-plugins )
-+SET(VERSION 0.3.0-1)
++SET(VERSION 0.3.0-2)
 +include( AutoCMake )
 +autocmake_pkgconfig_init()
 +
@@ -38,7 +48,7 @@ index 0000000..eb7d83f
 +add_subdirectory( ext/sctp           )
 diff --git a/ext/sctp/CMakeLists.txt b/ext/sctp/CMakeLists.txt
 new file mode 100644
-index 0000000..ad6a746
+index 0000000..bf1a06e
 --- /dev/null
 +++ b/ext/sctp/CMakeLists.txt
 @@ -0,0 +1,30 @@
@@ -55,7 +65,7 @@ index 0000000..ad6a746
 +
 +
 +include_directories( ${CMAKE_HOME_DIRECTORY}/gst-libs )
-+autocmake_check_modules(this gstreamer-1.0  glib-2.0
++autocmake_check_modules(this gstreamer-1.0
 +                      gstreamer-base-1.0 
 +					  libusrsctp)
 +
@@ -75,7 +85,7 @@ index 0000000..ad6a746
 \ No newline at end of file
 diff --git a/gst-libs/gst/sctp/CMakeLists.txt b/gst-libs/gst/sctp/CMakeLists.txt
 new file mode 100644
-index 0000000..0529729
+index 0000000..54b1fa4
 --- /dev/null
 +++ b/gst-libs/gst/sctp/CMakeLists.txt
 @@ -0,0 +1,22 @@
@@ -104,7 +114,7 @@ index 0000000..0529729
 \ No newline at end of file
 diff --git a/gst/scream/CMakeLists.txt b/gst/scream/CMakeLists.txt
 new file mode 100644
-index 0000000..eb14722
+index 0000000..4ef4870
 --- /dev/null
 +++ b/gst/scream/CMakeLists.txt
 @@ -0,0 +1,21 @@
@@ -132,7 +142,7 @@ index 0000000..eb14722
 \ No newline at end of file
 diff --git a/gst/videorepair/CMakeLists.txt b/gst/videorepair/CMakeLists.txt
 new file mode 100644
-index 0000000..02da7ec
+index 0000000..72964e9
 --- /dev/null
 +++ b/gst/videorepair/CMakeLists.txt
 @@ -0,0 +1,19 @@
@@ -157,5 +167,5 @@ index 0000000..02da7ec
 +install(TARGETS libgstvideorepair RUNTIME DESTINATION lib/gstreamer-1.0  LIBRARY DESTINATION lib/gstreamer-1.0 )
 \ No newline at end of file
 -- 
-2.12.2.windows.1
+2.13.2.windows.1
 

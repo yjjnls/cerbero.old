@@ -1,0 +1,47 @@
+From 11f1f8030dbd8ac5e86d00e02089dc48feb15d60 Mon Sep 17 00:00:00 2001
+From: Mingyi <zhangmingyi@kedacom.com>
+Date: Fri, 10 Nov 2017 16:18:00 +0800
+Subject: [PATCH] remove GST_EXPORT for gst-sctp
+
+---
+ gst-libs/gst/sctp/sctpreceivemeta.h | 4 ++--
+ gst-libs/gst/sctp/sctpsendmeta.h    | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/gst-libs/gst/sctp/sctpreceivemeta.h b/gst-libs/gst/sctp/sctpreceivemeta.h
+index fe667a7..2a0e888 100644
+--- a/gst-libs/gst/sctp/sctpreceivemeta.h
++++ b/gst-libs/gst/sctp/sctpreceivemeta.h
+@@ -42,10 +42,10 @@ struct _GstSctpReceiveMeta {
+ 
+ GType gst_sctp_receive_meta_api_get_type(void);
+ 
+-GST_EXPORT
++
+ const GstMetaInfo * gst_sctp_receive_meta_get_info(void);
+ 
+-GST_EXPORT
++
+ GstSctpReceiveMeta * gst_sctp_buffer_add_receive_meta(GstBuffer *buffer, guint32 ppid);
+ 
+ #define gst_sctp_buffer_get_receive_meta(b) ((GstSctpReceiveMeta *)gst_buffer_get_meta((b), GST_SCTP_RECEIVE_META_TYPE))
+diff --git a/gst-libs/gst/sctp/sctpsendmeta.h b/gst-libs/gst/sctp/sctpsendmeta.h
+index f7a265d..054d056 100644
+--- a/gst-libs/gst/sctp/sctpsendmeta.h
++++ b/gst-libs/gst/sctp/sctpsendmeta.h
+@@ -53,10 +53,10 @@ struct _GstSctpSendMeta {
+ 
+ GType gst_sctp_send_meta_api_get_type(void);
+ 
+-GST_EXPORT
++
+ const GstMetaInfo * gst_sctp_send_meta_get_info(void);
+ 
+-GST_EXPORT
++
+ GstSctpSendMeta * gst_sctp_buffer_add_send_meta(GstBuffer *buffer, guint32 ppid, gboolean ordered,
+     GstSctpSendMetaPartiallyReliability pr, guint32 pr_param);
+ 
+-- 
+2.13.2.windows.1
+
