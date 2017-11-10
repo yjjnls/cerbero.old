@@ -6,9 +6,9 @@ import platform
 
 class Recipe(recipe.Recipe):
     name = 'libusrsctp'
-    version = '1.0.0'
+    version = '1.0.1'
     remotes = {'origin': 'https://github.com/sctplab/usrsctp.git'}
-    commit = '2f6478eb8d40f1766a96b5b033ed26c0c2244589'
+    commit = '6d79bcc19755bc084b86f5c24d0d441da476ae76'
 
     licenses = [License.BSD_like]
     btype = BuildType.AUTOCMAKE
@@ -22,8 +22,10 @@ class Recipe(recipe.Recipe):
     #    os.environ['CFLAGS'] += ' -fPIC '
 
 
-    patches = ['usrsctp/0001-AutoCmake-adaption.patch', 
-               'usrsctp/0001-werror-maybe-uninitialized-fix.patch']
+    #patches = ['usrsctp/0001-AutoCmake-adaption.patch'
+	#           #,
+    #           #'usrsctp/0001-werror-maybe-uninitialized-fix.patch'
+	#		   ]
     
     files_libs = ['libusrsctp']
     files_devel = ['include/usrsctp.h', 'lib/pkgconfig/libusrsctp.pc']
