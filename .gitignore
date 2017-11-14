@@ -16,3 +16,4 @@ MANIFEST.in
 *.wsx
 *.wixobj
 /~tmp
+x86_64
