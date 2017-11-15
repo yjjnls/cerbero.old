@@ -1,0 +1,5 @@
+rootd=os.path.abspath( os.path.dirname(__file__)+'/..')
+prefix=os.path.join(rootd,'x86_64')
+from cerbero.config import Architecture
+arch = Architecture.X86_64
+target_arch = Architecture.X86_64
