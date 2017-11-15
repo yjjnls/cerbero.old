@@ -38,10 +38,10 @@ if platform.system() == 'Windows':
     FilesProvider._DLL_REGEX = \
     r'^(lib)?{}(-[0-9]+)?([\-_][0-9]+)?(-x64)?\.dll$' # arch suffix
     
-    import cerbero.build.build
-    import cerbero.build.hijack.cmake
-    cerbero.build.build.BuildType.AUTOCMAKE= \
-    cerbero.build.hijack.cmake.AutoCMake
+import cerbero.build.build
+import cerbero.build.hijack.cmake
+cerbero.build.build.BuildType.AUTOCMAKE= \
+cerbero.build.hijack.cmake.AutoCMake
 
 import cerbero.commands
 _old_load_commands = cerbero.commands.load_commands
