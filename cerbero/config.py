@@ -209,7 +209,10 @@ class Config (object):
         bindir = os.path.join(prefix, 'bin')
         manpathdir = os.path.join(prefix, 'share', 'man')
         infopathdir = os.path.join(prefix, 'share', 'info')
-        pkgconfigbin = os.path.join(self.build_tools_prefix, 'bin', 'pkg-config')
+        if self.target_platform == Platform.WINDOWS:
+            pkgconfigbin = os.path.join(self.build_tools_prefix, 'bin', 'pkg-config')
+        else:# linux version (not in build-tools)
+            pkgconfigbin = os.environ["PKG_CONFIG"]
         pkgconfigdatadir = os.path.join(prefix, 'share', 'pkgconfig')
         pkgconfigdir = os.path.join(libdir, 'pkgconfig')
         typelibpath = os.path.join(libdir, 'girepository-1.0')
