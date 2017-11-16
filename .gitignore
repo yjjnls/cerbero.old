@@ -17,3 +17,4 @@ MANIFEST.in
 *.wixobj
 /~tmp
 x86_64
+sources
